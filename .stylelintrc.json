@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "ignoreFiles": [
+    "src/styles/tokens.css",
+    "src/styles/ds/**"
+  ],
+  "rules": {
+    "color-no-hex": true,
+    "color-named": "never",
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "declaration-property-value-disallowed-list": {
+      "/^(color|background|background-color|border-color|fill|stroke)$/": [
+        "/rgb/",
+        "/hsl/",
+        "/oklch/"
+      ]
+    },
+    "no-descending-specificity": null
+  }
+}

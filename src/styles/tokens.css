@@ -1,0 +1,243 @@
+/* Apex CRM — generated from tokens.json by scripts/build-tokens.ts. Do not edit. */
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --background: #f4f7f7;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-sunken: #f6f9f9;
+  --surface-hover: #f0f5f5;
+  --surface-active: #e6eff0;
+  --surface-selected: #e4f4ef;
+  --overlay: #13303a59;
+  --border-subtle: #edf2f3;
+  --border-default: #e3eaec;
+  --border-strong: #c9d6d9;
+  --border-control: #72888e;
+  --text-primary: #13303a;
+  --text-secondary: #4e646b;
+  --text-tertiary: #5c7076;
+  --text-disabled: #a9babe;
+  --text-inverse: #ffffff;
+  --text-link: var(--accent-text);
+  --accent-primary: #1f7a6d;
+  --accent-primary-hover: #196a5f;
+  --accent-primary-active: #145a50;
+  --accent-text: #18705f;
+  --accent-subtle: #e4f4ef;
+  --on-accent: #ffffff;
+  --focus-ring: #1f7a6d;
+  --accent-secondary: #1f6fb8;
+  --accent-secondary-text: #1a66aa;
+  --accent-secondary-subtle: #e8f1fb;
+  --on-accent-secondary: #ffffff;
+  --secondary: #ffffff;
+  --secondary-hover: #f4f7f7;
+  --secondary-active: #e6eff0;
+  --on-secondary: var(--text-primary);
+  --status-success: #1d7a4c;
+  --status-success-subtle: #e6f6ec;
+  --status-warning: #9a5b00;
+  --status-warning-subtle: #fff3df;
+  --status-danger: #c23b32;
+  --status-danger-subtle: #fdecea;
+  --status-info: var(--accent-secondary-text);
+  --status-info-subtle: var(--accent-secondary-subtle);
+  --status-neutral: var(--text-secondary);
+  --status-neutral-subtle: #eef3f4;
+  --danger-solid: #c23b32;
+  --danger-solid-hover: #a8322a;
+  --on-danger: #ffffff;
+  --chart-1: #1c9e8f;
+  --chart-1-soft: #9fd9cb;
+  --chart-2: #2a78d6;
+  --chart-3: #eb6834;
+  --chart-4: #6250d6;
+  --chart-5: #eda100;
+  --chart-6: #e87ba4;
+  --chart-grid: #edf2f3;
+  --chart-axis: #c9d6d9;
+  --chart-track: #e6eff0;
+  --doc-paper: #ffffff;
+  --doc-ink: #0b1d22;
+  --doc-muted: #3d5a62;
+  --doc-faint: #55717a;
+  --doc-accent: #0f7f74;
+  --doc-rule: #d3e0e3;
+  --doc-rule-strong: #b5c8cd;
+  --doc-rule-subtle: #e3ecee;
+  --doc-fill: #eef6f5;
+  --doc-paid: #14774a;
+  --doc-overdue: #be3530;
+  --tint-orange-text: #a14b0c;
+  --tint-orange: #fff1e5;
+  --tint-violet-text: #5b45c4;
+  --tint-violet: #f0ecfd;
+  --shadow-xs: 0 1px 2px #0b1d220d;
+  --shadow-sm: 0 1px 2px #13303a0a, 0 2px 8px #13303a0a;
+  --shadow-md: 0 8px 24px #13303a14, 0 2px 6px #13303a0d;
+  --shadow-lg: 0 18px 44px #0b1d2224, 0 4px 12px #0b1d2214;
+  --shadow-focus: 0 0 0 2px #ffffff, 0 0 0 4px #1f7a6d;
+  --shadow-focus-danger: 0 0 0 2px #ffffff, 0 0 0 4px #c23b32;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #071216;
+  --surface: #0c1a1f;
+  --surface-elevated: #12232a;
+  --surface-sunken: #08151a;
+  --surface-hover: #142a31;
+  --surface-active: #1a343c;
+  --surface-selected: #0e2c2d;
+  --overlay: #020a0dcc;
+  --border-subtle: #142830;
+  --border-default: #1d3540;
+  --border-strong: #2a4a56;
+  --border-control: #567c88;
+  --text-primary: #e4f1f3;
+  --text-secondary: #9fbcc3;
+  --text-tertiary: #7f9ea6;
+  --text-disabled: #3f5a62;
+  --text-inverse: #071216;
+  --text-link: var(--accent-text);
+  --accent-primary: #3cc6b4;
+  --accent-primary-hover: #5ad3c3;
+  --accent-primary-active: #2fae9e;
+  --accent-text: #5fe0cf;
+  --accent-subtle: #0e2f30;
+  --on-accent: #04201d;
+  --focus-ring: #7fe7da;
+  --accent-secondary: #4a9ae8;
+  --accent-secondary-text: #7cc0f5;
+  --accent-secondary-subtle: #0d2336;
+  --on-accent-secondary: #04121f;
+  --secondary: #12232a;
+  --secondary-hover: #1a343c;
+  --secondary-active: #21404a;
+  --on-secondary: var(--text-primary);
+  --status-success: #5ad68f;
+  --status-success-subtle: #0d2a1d;
+  --status-warning: #f0b85a;
+  --status-warning-subtle: #2b2212;
+  --status-danger: #f2827a;
+  --status-danger-subtle: #2f1717;
+  --status-info: var(--accent-secondary-text);
+  --status-info-subtle: var(--accent-secondary-subtle);
+  --status-neutral: var(--text-secondary);
+  --status-neutral-subtle: #152b31;
+  --danger-solid: #cf3f3a;
+  --danger-solid-hover: #b8312d;
+  --on-danger: #ffffff;
+  --chart-1: #21a191;
+  --chart-1-soft: #1f5f57;
+  --chart-2: #3987e5;
+  --chart-3: #d95926;
+  --chart-4: #9085e9;
+  --chart-5: #c98500;
+  --chart-6: #d55181;
+  --chart-grid: #142830;
+  --chart-axis: #2a4a56;
+  --chart-track: #1a343c;
+  --doc-paper: #ffffff;
+  --doc-ink: #0b1d22;
+  --doc-muted: #3d5a62;
+  --doc-faint: #55717a;
+  --doc-accent: #0f7f74;
+  --doc-rule: #d3e0e3;
+  --doc-rule-strong: #b5c8cd;
+  --doc-rule-subtle: #e3ecee;
+  --doc-fill: #eef6f5;
+  --doc-paid: #14774a;
+  --doc-overdue: #be3530;
+  --tint-orange-text: #f2a768;
+  --tint-orange: #2d1d10;
+  --tint-violet-text: #b3a8f5;
+  --tint-violet: #1d1a36;
+  --shadow-xs: 0 1px 0 #00000066;
+  --shadow-sm: 0 1px 2px #00000080, inset 0 1px 0 #ffffff0a;
+  --shadow-md: 0 8px 20px #000000a6, inset 0 1px 0 #ffffff12;
+  --shadow-lg: 0 20px 56px #000000cc, inset 0 1px 0 #ffffff14;
+  --shadow-focus: 0 0 0 2px #0c1a1f, 0 0 0 4px #7fe7da;
+  --shadow-focus-danger: 0 0 0 2px #0c1a1f, 0 0 0 4px #f2827a;
+}
+:root {
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  --control-xs: 24px;
+  --control-sm: 28px;
+  --control-md: 32px;
+  --control-lg: 36px;
+  --row-compact: 32px;
+  --row-default: 40px;
+  --row-comfortable: 48px;
+  --hit-min: 24px;
+  --sidebar-width: 232px;
+  --sidebar-collapsed: 56px;
+  --topbar-height: 48px;
+  --page-header-height: 56px;
+  --content-max: 1600px;
+  --form-max: 720px;
+  --drawer-sm: 400px;
+  --drawer-md: 560px;
+  --drawer-lg: 760px;
+  --modal-sm: 400px;
+  --modal-md: 560px;
+  --modal-lg: 800px;
+  --command-palette: 640px;
+  --doc-page: 794px;
+  --icon-xs: 12px;
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 20px;
+  --icon-xl: 24px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1600px;
+  --z-sticky: 10;
+  --z-sidebar: 20;
+  --z-dropdown: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+  --z-tooltip: 70;
+  --font-sans: "Plus Jakarta Sans", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-arabic: "IBM Plex Sans Arabic", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.t-page-title { font-family: var(--font-sans); font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em; }
+.t-section-heading { font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 600; }
+.t-card-title { font-family: var(--font-sans); font-size: 13px; line-height: 20px; font-weight: 600; }
+.t-body { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }
+.t-body-strong { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 500; }
+.t-body-sm { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.t-label { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; }
+.t-caption { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 400; }
+.t-overline { font-family: var(--font-sans); font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: 0.04em; }
+.t-table { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.t-table-header { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; }
+.t-money { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 500; }
+.t-money-lg { font-family: var(--font-sans); font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.t-metric { font-family: var(--font-sans); font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.02em; }
+.t-timestamp { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 400; }
+.t-mono { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 400; }
+.t-page-title-ar { font-family: var(--font-arabic); font-size: 24px; line-height: 36px; font-weight: 600; }
+.t-body-ar { font-family: var(--font-arabic); font-size: 14px; line-height: 22px; font-weight: 400; }
+.t-label-ar { font-family: var(--font-arabic); font-size: 12px; line-height: 18px; font-weight: 500; }
+.t-doc-title { font-family: var(--font-sans); font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em; }
+.t-doc-body { font-family: var(--font-sans); font-size: 11px; line-height: 16px; font-weight: 400; }
