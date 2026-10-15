@@ -61,6 +61,16 @@ async function main() {
     ["Future Lab", "prospect", "FR", "EUR", "en", "Lucas", "Bernard"],
     ["I-Tech", "inactive", "DZ", "EUR", "fr", "Amine", "Cherif"],
   ] as const;
+  const CLIENT_TAGS: Record<string, string[]> = {
+    "Librairie El Amel": ["publishing", "retail"],
+    "Algerian Publishers": ["publishing"],
+    "Dar El Ilm": ["publishing", "education"],
+    "Editions Houma": ["publishing"],
+    "Digital Solutions": ["agency"],
+    "Media Pro": ["media"],
+    "Creative Studio": ["agency", "media"],
+    "Future Lab": ["education"],
+  };
   const clients = await db
     .insert(s.clients)
     .values(
@@ -72,6 +82,7 @@ async function main() {
         currency,
         documentLanguage: lang,
         ownerId: owner.id,
+        tags: CLIENT_TAGS[name] ?? [],
         email: `contact@${name.toLowerCase().replace(/[^a-z]+/g, "")}.example`,
         phone: country === "DZ" ? "+213 550 12 34 56" : "+33 6 12 34 56 78",
       })),
@@ -127,7 +138,7 @@ async function main() {
         position: i,
         expectedCloseDate: d(10 + i * 3),
         wonAt: stage === "won" ? at(-40 - i, 10) : null,
-        lostReason: stage === "lost" ? "Budget" : null,
+        lostReason: stage === "lost" ? "budget" : null,
       })),
     )
     .returning();
