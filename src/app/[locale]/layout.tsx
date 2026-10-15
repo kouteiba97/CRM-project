@@ -9,6 +9,13 @@ import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 import "@/styles/tokens.css";
 import "@/styles/ds/bundle.css";
 import "@/styles/app.css";
+import "@/styles/clients.css";
+import "@/styles/leads.css";
+import "@/styles/projects.css";
+import "@/styles/tasks.css";
+import "@/styles/documents.css";
+import "@/styles/payments.css";
+import "@/styles/settings.css";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

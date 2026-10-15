@@ -53,7 +53,15 @@ export function Card({
   );
 }
 
-export function EmptyState({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body?: string }) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: LucideIcon;
+  title: string;
+  body?: string;
+}) {
   return (
     <div className="ax-empty">
       <span className="tile" aria-hidden>

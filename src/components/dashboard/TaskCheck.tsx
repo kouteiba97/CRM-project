@@ -14,6 +14,9 @@ export function TaskRow({
   title,
   status,
   overdue,
+  initialDone = false,
+  lead,
+  className = "dash-task",
   children,
 }: {
   id: string;
@@ -21,19 +24,26 @@ export function TaskRow({
   /** Current status, restored by Undo. */
   status: string;
   overdue: boolean;
+  /** Already completed (project task lists show done tasks too). */
+  initialDone?: boolean;
+  /** Rendered before the completion control (e.g. a selection checkbox). */
+  lead?: ReactNode;
+  className?: string;
   children: ReactNode;
 }) {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
   const toast = useToast();
   const [, start] = useTransition();
-  const [done, setDone] = useOptimistic(false);
+  const [done, setDone] = useOptimistic(initialDone);
+  // Reopening a task that was already done puts it back to "To do".
+  const reopenTo = status === "done" ? "todo" : status;
 
   const apply = (next: boolean) =>
     start(async () => {
       setDone(next);
       try {
-        await setTaskStatus(id, next ? "done" : status);
+        await setTaskStatus(id, next ? "done" : reopenTo);
         toast(
           next
             ? { tone: "success", title: t("taskDone"), action: { label: tc("undo"), run: () => apply(false) } }
@@ -45,7 +55,8 @@ export function TaskRow({
     });
 
   return (
-    <li className={`ax-task dash-task${done ? " is-done" : ""}${overdue && !done ? " is-overdue" : ""}`}>
+    <li className={`ax-task ${className}${done ? " is-done" : ""}${overdue && !done ? " is-overdue" : ""}`}>
+      {lead}
       <button
         type="button"
         role="checkbox"

@@ -28,12 +28,15 @@ export function RevenueCard({
   max,
   title,
   ariaLabel,
+  sub,
 }: {
   points: RevenuePoint[];
   ticks: { value: number; label: string }[];
   max: number;
   title: string;
   ariaLabel: string;
+  /** Period line under the title; the dashboard's default is "Last 6 months". */
+  sub?: string;
 }) {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
@@ -61,7 +64,7 @@ export function RevenueCard({
   );
 
   return (
-    <Card id="revenue" title={title} sub={t("revenueSub")} icon={ChartColumn} tint="green" actions={toggle} className="span-8">
+    <Card id="revenue" title={title} sub={sub ?? t("revenueSub")} icon={ChartColumn} tint="green" actions={toggle} className="span-8">
       <div className="card-body">
         {empty ? (
           <EmptyState icon={ChartColumn} title={t("revenueEmpty")} />

@@ -38,6 +38,7 @@ import { Card, EmptyState } from "@/components/ui/Card";
 import { DueLabel } from "@/components/ui/DueLabel";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { WidgetError } from "@/components/ui/WidgetError";
+import { ACTIVITY_LOOK, activitySentence, FALLBACK_LOOK } from "@/components/activity/look";
 import { ReminderButton } from "./ReminderButton";
 import { RevenueCard, type RevenuePoint } from "./RevenueChart";
 import { TaskRow } from "./TaskCheck";
@@ -279,7 +280,8 @@ export async function OverdueInvoicesCard({ ctx }: { ctx: Ctx }) {
 }
 
 // ── Revenue chart ───────────────────────────────────────────────────────────────────────
-function niceScale(max: number) {
+/** Round axis maximum and step for bar charts (DS › Data visualization: abbreviated axis values). */
+export function niceScale(max: number) {
   if (max <= 0) return { top: 0, step: 0 };
   const raw = max / 4;
   const mag = 10 ** Math.floor(Math.log10(raw));
@@ -352,31 +354,16 @@ export async function PipelineCard({ ctx }: { ctx: Ctx }) {
 }
 
 // ── Recent activity ─────────────────────────────────────────────────────────────────────
-const ACTIVITY_LOOK: Record<string, { icon: LucideIcon; tone: string }> = {
-  lead_created: { icon: Target, tone: "accent" },
-  lead_stage_changed: { icon: Target, tone: "blue" },
-  followup_done: { icon: Phone, tone: "blue" },
-  payment_received: { icon: Wallet, tone: "success" },
-  quotation_sent: { icon: Send, tone: "blue" },
-  invoice_reminder: { icon: Send, tone: "" },
-  milestone_completed: { icon: Flag, tone: "success" },
-  task_completed: { icon: Check, tone: "success" },
-};
 
 export async function ActivityCard({ ctx }: { ctx: Ctx }) {
   const { f, t } = await setup();
   const ta = await getTranslations("activity");
-  const ts = await getTranslations("status.lead");
+  const ts = await getTranslations("status");
   const res = await load(() => getRecentActivity(ctx.ws));
   if (!res.ok) return <WidgetError title={t("activityTitle")} />;
 
-  const sentence = (kind: string, p: Record<string, string | number>) => {
-    const vals: Record<string, string> = Object.fromEntries(Object.entries(p).map(([k, v]) => [k, String(v)]));
-    if (kind === "payment_received" && typeof p.amountMinor === "number")
-      vals.amount = f.money(p.amountMinor, String(p.currency ?? ctx.currency));
-    if (kind === "lead_stage_changed" && p.stage) vals.stage = ts(String(p.stage) as never);
-    return ACTIVITY_LOOK[kind] ? (ta as unknown as (k: string, v: Record<string, string>) => string)(kind, vals) : ta("unknown");
-  };
+  const sentence = (kind: string, p: Record<string, string | number>) =>
+    activitySentence(kind, p, f, ta as unknown as (k: string, v?: Record<string, string>) => string, (d, c) => ts(`${d}.${c}` as never), ctx.currency);
 
   return (
     <Card id="activity" title={t("activityTitle")} icon={Activity} tint="violet" className="span-8">
@@ -385,7 +372,7 @@ export async function ActivityCard({ ctx }: { ctx: Ctx }) {
       ) : (
         <ol className="ax-timeline">
           {res.data.map((a) => {
-            const look = ACTIVITY_LOOK[a.kind] ?? { icon: Activity, tone: "" };
+            const look = ACTIVITY_LOOK[a.kind] ?? FALLBACK_LOOK;
             return (
               <li key={a.id} className="ax-tl-item">
                 <span className={`ax-tl-icon ${look.tone}`} aria-hidden>
