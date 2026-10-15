@@ -60,6 +60,8 @@ test("KPI strip and Today card fit 1366×768 without scrolling", async ({ page }
 });
 
 test("[ toggles the sidebar and the choice persists", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/en");
   const sidebar = page.locator(".ax-sidebar");
@@ -72,6 +74,8 @@ test("[ toggles the sidebar and the choice persists", async ({ page }) => {
   await page.keyboard.press("[");
   await expect(sidebar).toHaveJSProperty("offsetWidth", 232);
   await page.waitForTimeout(500);
+  // Persisting runs outside the state updater: no "Cannot update a component while rendering".
+  expect(errors.filter((e) => e.includes("Cannot update a component"))).toEqual([]);
 });
 
 test("language switch keeps the current path", async ({ page }) => {

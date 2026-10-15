@@ -10,6 +10,7 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { CommandPalette } from "./CommandPalette";
 import { ToastProvider } from "./Toasts";
+import { CrumbProvider } from "./Crumbs";
 
 export type SidebarState = "auto" | "collapsed" | "expanded";
 
@@ -45,15 +46,14 @@ export function AppShell({
     setNavOpen(false);
   }
 
+  // Persisting is a side effect, so it runs outside the state updater (updaters must stay pure).
   const toggleSidebar = useCallback(() => {
-    setSidebar((current) => {
-      const autoCollapsed = window.matchMedia("(min-width: 1024px) and (max-width: 1279px)").matches;
-      const collapsedNow = current === "collapsed" || (current === "auto" && autoCollapsed);
-      const next: SidebarState = collapsedNow ? "expanded" : "collapsed";
-      void saveSidebar(next);
-      return next;
-    });
-  }, []);
+    const autoCollapsed = window.matchMedia("(min-width: 1024px) and (max-width: 1279px)").matches;
+    const collapsedNow = sidebar === "collapsed" || (sidebar === "auto" && autoCollapsed);
+    const next: SidebarState = collapsedNow ? "expanded" : "collapsed";
+    setSidebar(next);
+    void saveSidebar(next);
+  }, [sidebar]);
 
   // Global shortcuts (DS › Interaction › Keyboard). Single keys are ignored while typing.
   useEffect(() => {
@@ -99,6 +99,7 @@ export function AppShell({
 
   return (
     <ToastProvider>
+      <CrumbProvider>
       <div className="app" data-sidebar={sidebar} data-nav-open={navOpen}>
         <a className="skip-link" href="#main">
           {t("skipToContent")}
@@ -126,6 +127,7 @@ export function AppShell({
         </div>
         {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
       </div>
+      </CrumbProvider>
     </ToastProvider>
   );
 }

@@ -194,8 +194,18 @@ body {
   padding: 0;
 }
 
-.app[data-sidebar="collapsed"] .ax-sidebar :is(.ax-nav-item .label, .ws-row .name, .ws-row .chev) {
+.app[data-sidebar="collapsed"] .ax-sidebar .ws-row .chev {
   display: none;
+}
+
+/* Visually hidden, not display: none: the rail links keep their accessible names. */
+.app[data-sidebar="collapsed"] .ax-sidebar :is(.ax-nav-item .label, .ws-row .name) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .app[data-sidebar="collapsed"] .ax-sidebar .ax-nav-group {
@@ -233,8 +243,18 @@ body {
     padding: 0;
   }
 
-  .app[data-sidebar="auto"] .ax-sidebar :is(.ax-nav-item .label, .ws-row .name, .ws-row .chev) {
+  .app[data-sidebar="auto"] .ax-sidebar .ws-row .chev {
     display: none;
+  }
+
+  /* Visually hidden, not display: none: the rail links keep their accessible names. */
+  .app[data-sidebar="auto"] .ax-sidebar :is(.ax-nav-item .label, .ws-row .name) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .app[data-sidebar="auto"] .ax-sidebar .ax-nav-group {
@@ -852,4 +872,11 @@ body {
   .dash-task .proj {
     display: none;
   }
+}
+
+.crumb-record {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

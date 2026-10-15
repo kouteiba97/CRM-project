@@ -8,7 +8,8 @@ import { saveLocale, saveTheme } from "@/app/actions";
 import type { SidebarCounts } from "@/db/queries/dashboard";
 import type { Locale } from "@/lib/format";
 import { Menu } from "./Menu";
-import { activeKey, QUICK_CREATE } from "./nav";
+import { activeKey, ALL_NAV, QUICK_CREATE } from "./nav";
+import { useRecordCrumb } from "./Crumbs";
 import { initials } from "./initials";
 
 const LANGS: { code: Locale; label: string }[] = [
@@ -41,6 +42,8 @@ export function Topbar({
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const current = activeKey(pathname);
+  const record = useRecordCrumb();
+  const moduleHref = ALL_NAV.find((i) => i.key === current)?.href;
   const unread = counts.followUpsDue + counts.overdueInvoices;
 
   const dark = useSyncExternalStore(subscribeTheme, () => document.documentElement.dataset.theme === "dark", () => false);
@@ -72,9 +75,23 @@ export function Topbar({
               <ChevronRight className="ax-icon sep" aria-hidden />
             </li>
           )}
-          <li style={{ display: "contents" }}>
-            <span aria-current="page">{tn(current ?? "dashboard")}</span>
-          </li>
+          {record && moduleHref ? (
+            <>
+              <li style={{ display: "contents" }}>
+                <Link href={moduleHref}>{tn(current ?? "dashboard")}</Link>
+                <ChevronRight className="ax-icon sep" aria-hidden />
+              </li>
+              <li style={{ display: "contents" }}>
+                <span aria-current="page" className="crumb-record">
+                  {record}
+                </span>
+              </li>
+            </>
+          ) : (
+            <li style={{ display: "contents" }}>
+              <span aria-current="page">{tn(current ?? "dashboard")}</span>
+            </li>
+          )}
         </ol>
       </nav>
 

@@ -92,6 +92,7 @@ export function activeKey(pathname: string): NavKey | undefined {
 export const QUICK_CREATE = [
   { key: "newClient", href: "/clients?new=1", shortcut: "C" },
   { key: "newLead", href: "/leads?new=1", shortcut: "L" },
+  { key: "newProject", href: "/projects?new=1", shortcut: "P" },
   { key: "newInvoice", href: "/invoices?new=1", shortcut: "I" },
   { key: "newTask", href: "/tasks?new=1", shortcut: "T" },
 ] as const;

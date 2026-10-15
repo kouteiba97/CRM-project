@@ -25,7 +25,7 @@ export function Menu({
   const menuId = useId();
 
   const items = () =>
-    Array.from(host.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+    Array.from(host.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []);
 
   useEffect(() => {
     if (!open) return;
@@ -87,7 +87,7 @@ export function Menu({
           role="menu"
           className={`ax-menu menu-pop${align === "start" ? " start" : ""}`}
           onClick={(e) => {
-            if ((e.target as HTMLElement).closest('[role="menuitem"]')) setOpen(false);
+            if ((e.target as HTMLElement).closest('[role^="menuitem"]')) setOpen(false);
           }}
         >
           {children}
