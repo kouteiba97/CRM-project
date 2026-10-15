@@ -1,0 +1,108 @@
+/*
+ * Reports and Settings glue. Components come from ds/bundle.css (ax-*); every value is a token.
+ */
+
+/* ── Reports ─────────────────────────────────────────────────────────────────────── */
+.reports-grid > .span-6 {
+  grid-column: span 6;
+}
+
+@media (width <= 1023px) {
+  .reports-grid > .span-6 {
+    grid-column: span 12;
+  }
+}
+
+/* Late receivables read as late in words; the bar colour only reinforces it. */
+.hbar-track.is-late > span {
+  background: var(--status-danger);
+}
+
+.reports-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.lost-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.lost-reasons p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.reason-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  font-size: 13px;
+}
+
+.reason-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* ── Settings ────────────────────────────────────────────────────────────────────── */
+.settings-panel {
+  max-width: 760px;
+}
+
+.settings-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.settings-section .ax-help {
+  margin: 0;
+}
+
+.settings-section .ax-banner {
+  margin: 0;
+}
+
+.settings-seg {
+  align-self: flex-start;
+  flex-wrap: wrap;
+}
+
+.settings-seg a,
+.settings-seg button {
+  height: var(--control-sm);
+  padding-inline: var(--space-3);
+}
+
+.settings-form {
+  gap: var(--space-4);
+}
+
+.settings-sub {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
