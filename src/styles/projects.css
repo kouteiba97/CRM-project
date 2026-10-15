@@ -1,0 +1,253 @@
+/*
+ * Projects module glue: list, ProjectHeader (meta, stat strip, milestone stepper), task and milestone
+ * lists, PaymentSummary. Components come from ds/bundle.css (ax-*); every value is a token.
+ */
+
+/* ── List ────────────────────────────────────────────────────────────────────────── */
+.progress-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 120px;
+}
+
+.progress-cell .ax-progress {
+  flex: 1;
+  min-width: 60px;
+}
+
+.ms-cell {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 220px;
+  line-height: 16px;
+}
+
+.budget-used {
+  font-weight: 500;
+}
+
+.budget-used.warning {
+  color: var(--status-warning);
+}
+
+.budget-used.danger {
+  color: var(--status-danger);
+}
+
+/* ── ProjectHeader ───────────────────────────────────────────────────────────────── */
+.project-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  min-width: 0;
+}
+
+.project-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.project-title h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.project-title .actions {
+  margin-inline-start: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.project-title .actions .ax-btn {
+  text-decoration: none;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.meta-part,
+.meta-client {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.meta-part .sep {
+  color: var(--text-tertiary);
+}
+
+.project-meta .repo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  overflow-wrap: anywhere;
+}
+
+.project-meta .ax-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.unbilled {
+  margin: 0;
+}
+
+.project-kpis .ax-metric {
+  gap: var(--space-1-5);
+}
+
+.project-kpis .val-sm {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.project-kpis .ax-progress {
+  margin-block: var(--space-2);
+}
+
+.project-kpis .sub {
+  flex-wrap: wrap;
+}
+
+.project-steps {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  overflow-x: auto;
+}
+
+.project-steps .ax-step {
+  min-width: 110px;
+}
+
+.project-steps .ax-step .n {
+  padding-inline-end: var(--space-2);
+}
+
+.project-steps .step-late {
+  color: var(--status-danger);
+  font-weight: 500;
+}
+
+@media (width <= 639px) {
+  .project-head {
+    padding: var(--space-4);
+  }
+
+  .project-title .actions {
+    margin-inline-start: 0;
+  }
+}
+
+/* ── Tasks & milestones ──────────────────────────────────────────────────────────── */
+.project-tasks .ax-task {
+  padding-inline: var(--space-5);
+}
+
+.project-tasks .ax-task .proj {
+  white-space: nowrap;
+}
+
+.milestone-list .ms-row {
+  flex-wrap: wrap;
+}
+
+.milestone-list .ms-row .amt {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.milestone-list .ms-row .ax-btn {
+  text-decoration: none;
+}
+
+.inline-add-row {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.inline-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px 140px auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.inline-add .inline-add-err {
+  grid-column: 1 / -1;
+}
+
+@media (width <= 767px) {
+  .inline-add {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .inline-add > input:first-of-type {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── PaymentSummary ──────────────────────────────────────────────────────────────── */
+.pay-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pay-amount {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.pay-amount .lbl {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.pay-amount .val {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ax-legend-row .sw-paid {
+  background: var(--status-success);
+}
+
+.ax-legend-row .sw-pending {
+  background: var(--border-strong);
+}
+
+.ax-legend-row .sw-overdue {
+  background: repeating-linear-gradient(135deg, var(--status-danger) 0 3px, var(--status-danger-subtle) 3px 6px);
+}
+
+.pay-overdue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--status-danger);
+}
+
+.pay-link {
+  font-size: 12px;
+}
