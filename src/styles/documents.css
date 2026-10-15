@@ -1,0 +1,519 @@
+/*
+ * Quotations & invoices glue: list, editor (form + live preview), InvoiceDocument details, record layout,
+ * modals and the print stylesheet (Download PDF = print exactly the document).
+ * Components come from ds/bundle.css (ax-*); every value is a token.
+ */
+
+/* ── List ────────────────────────────────────────────────────────────────────────── */
+.documents-table .doc-link {
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.documents-table .doc-link:hover {
+  text-decoration: underline;
+}
+
+.documents-table tr.is-overdue-row td:first-child {
+  box-shadow: inset 2px 0 0 var(--status-danger);
+}
+
+.documents-table .money.is-void {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+
+.doc-sum {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ── Document paper (always light: doc-* tokens) ──────────────────────────────────── */
+.doc {
+  position: relative;
+  text-align: start;
+}
+
+.doc .doc-brand {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.doc .doc-title {
+  text-align: end;
+}
+
+/* Same look as the DS `.ax-doc h1`, one level down: the page already has its h1. */
+.doc .doc-h {
+  margin: 0;
+  color: var(--doc-accent);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.doc .doc-number {
+  font-family: var(--font-mono);
+}
+
+.doc .doc-stamp-wrap {
+  margin-top: 6px;
+}
+
+.doc .doc-idx {
+  width: 24px;
+}
+
+.doc .doc-text {
+  margin: 0 0 var(--space-3);
+  white-space: pre-line;
+}
+
+.doc .doc-legal {
+  text-align: end;
+}
+
+/* The document follows its own language, not the UI's: a French or English document keeps its
+   uppercase labels and Latin face inside the Arabic UI, and an Arabic one drops them. */
+.doc:lang(en),
+.doc:lang(fr) {
+  font-family: var(--font-sans);
+}
+
+.doc:lang(en) .lbl,
+.doc:lang(en) th,
+.doc:lang(fr) .lbl,
+.doc:lang(fr) th {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.doc:lang(ar) .lbl,
+.doc:lang(ar) th,
+.doc:lang(ar) .ax-doc-stamp {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Drafts carry a watermark (DS › InvoiceDocument › Status stamps). */
+.doc.is-draft::after {
+  content: attr(data-watermark);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 96px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--doc-rule);
+  opacity: 0.6;
+  transform: rotate(-24deg);
+  pointer-events: none;
+}
+
+.doc-frame .ax-pdf-stage {
+  padding: var(--space-5);
+}
+
+.doc-zoom {
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  min-width: 100%;
+}
+
+.doc-zoom .ax-doc {
+  width: var(--doc-page);
+  max-width: none;
+  flex: none;
+}
+
+.doc-bar-number {
+  color: var(--text-primary);
+}
+
+.doc-lang {
+  font-size: 12px;
+}
+
+/* ── Record ──────────────────────────────────────────────────────────────────────── */
+.doc-head .ax-mono-title {
+  font-family: var(--font-mono);
+  font-size: 20px;
+}
+
+.doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.doc-actions .ax-btn {
+  text-decoration: none;
+}
+
+.doc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (width >= 1280px) {
+  .doc-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+}
+
+.doc-main {
+  min-width: 0;
+}
+
+.doc-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.pay-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pay-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: baseline;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+}
+
+.pay-list .ax-faint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.pay-credit {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--status-info);
+}
+
+.tl-pad {
+  padding: var(--space-4) var(--space-5) var(--space-2);
+}
+
+/* ── Modals (native dialog) ──────────────────────────────────────────────────────── */
+.app-modal {
+  padding: 0;
+  color: var(--text-primary);
+  max-height: 85vh;
+}
+
+.app-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-modal form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.app-modal .ax-modal-body {
+  overflow-y: auto;
+  color: var(--text-primary);
+}
+
+.app-modal::backdrop {
+  background: var(--overlay);
+}
+
+.app-modal .attach {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.app-modal .ax-banner {
+  margin: 0;
+}
+
+.pay-warning {
+  display: flex;
+  gap: var(--space-1-5);
+  align-items: flex-start;
+  margin: 0;
+  font-size: 12px;
+  color: var(--status-warning);
+}
+
+/* ── Editor: form left, live preview right at ≥ bp-xl; below it the preview is a tab ── */
+.editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.editor-tabs {
+  justify-self: start;
+}
+
+.editor-tabs button {
+  height: var(--control-sm);
+}
+
+.editor.pane-form .editor-preview,
+.editor.pane-preview .editor-form {
+  display: none;
+}
+
+@media (width >= 1280px) {
+  .editor {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  }
+
+  .editor-tabs {
+    display: none;
+  }
+
+  .editor.pane-form .editor-preview,
+  .editor.pane-preview .editor-form {
+    display: flex;
+  }
+
+  .editor-preview {
+    position: sticky;
+    top: calc(var(--topbar-height) + var(--space-4));
+    max-height: calc(100vh - var(--topbar-height) - var(--space-8));
+  }
+
+  .editor-preview .doc-frame {
+    max-height: 100%;
+  }
+}
+
+.editor-form,
+.editor-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.editor-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.editor-lines {
+  gap: 0;
+}
+
+.lines-hint {
+  margin-inline-start: auto;
+  font-size: 12px;
+}
+
+.lines-scroll {
+  overflow-x: auto;
+}
+
+.lines-table {
+  min-width: 600px;
+}
+
+.lines-table th,
+.lines-table td {
+  padding-inline: var(--space-1-5);
+}
+
+.lines-table td {
+  height: auto;
+  padding-block: var(--space-1-5);
+  vertical-align: top;
+  max-width: none;
+  overflow: visible;
+  white-space: normal;
+}
+
+.lines-table .ax-input {
+  height: var(--control-sm);
+  padding-inline: var(--space-2);
+  font-size: 13px;
+}
+
+.lines-table .num .ax-input {
+  text-align: end;
+}
+
+.lines-table .li-desc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 200px;
+}
+
+.lines-table .li-detail {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.lines-table .li-quantity,
+.lines-table .li-taxRate,
+.lines-table .li-unit {
+  width: 56px;
+}
+
+.lines-table .li-unitPrice {
+  width: 92px;
+}
+
+.lines-table .li-amount {
+  padding-top: var(--space-2);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.lines-table .li-handle-col {
+  width: 28px;
+}
+
+.li-handle {
+  cursor: grab;
+}
+
+.lines-err {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+}
+
+.lines-foot {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.editor-totals-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: var(--space-6);
+}
+
+@media (width <= 767px) {
+  .editor-totals-wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.editor-extra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.editor-extra .ax-field:first-child .ax-input {
+  max-width: 120px;
+}
+
+.editor-totals {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.editor-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}
+
+.editor-totals dt {
+  color: var(--text-secondary);
+}
+
+.editor-totals dd {
+  margin: 0;
+}
+
+.editor-totals .total {
+  border-top: 1px solid var(--border-default);
+  padding-top: var(--space-2);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.editor-totals .total dt {
+  color: var(--text-primary);
+}
+
+.editor-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  background: var(--background);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.editor-actions .ax-btn {
+  text-decoration: none;
+}
+
+/* ── Download PDF = print only the document page ────────────────────────────────── */
+@media print {
+  @page {
+    size: a4;
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .doc,
+  .doc * {
+    visibility: visible;
+  }
+
+  .doc {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 210mm;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .doc-zoom {
+    zoom: 1 !important;
+  }
+}
