@@ -1,0 +1,246 @@
+/*
+ * Leads module glue: pipeline (DS › KanbanBoard), table view, lead record, drawers and the Won/Lost form.
+ * Components come from ds/bundle.css (ax-*); every value is a token.
+ */
+
+/* ── Board ───────────────────────────────────────────────────────────────────────── */
+.leads-frame.view-board {
+  background: var(--surface);
+}
+
+.board-scroll {
+  min-width: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.leads-board {
+  padding: var(--space-3);
+  min-height: 420px;
+}
+
+.leads-board .ax-col {
+  align-self: stretch;
+}
+
+/* Stage marker colours (the word is always there; colour only reinforces). */
+.ax-col.stage-new {
+  color: var(--text-secondary);
+}
+
+.ax-col.stage-contacted {
+  color: var(--status-info);
+}
+
+.ax-col.stage-proposal_sent {
+  color: var(--accent-text);
+}
+
+.ax-col.stage-negotiation {
+  color: var(--status-warning);
+}
+
+.ax-col.stage-won {
+  color: var(--status-success);
+}
+
+.ax-col.stage-lost {
+  color: var(--status-danger);
+}
+
+.ax-col-head h3 {
+  color: var(--text-primary);
+}
+
+.ax-col-body {
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* Won / Lost collapse to 120px summaries that still accept drops. */
+.ax-col.col-collapsed {
+  width: 120px;
+}
+
+.col-collapsed .ax-col-head {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 40px;
+  padding-block: var(--space-2);
+}
+
+.col-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-3) var(--space-3);
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.col-summary .ax-link {
+  font-size: 12px;
+}
+
+.col-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.col-empty {
+  margin: 0;
+  padding: var(--space-3) var(--space-2);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.col-add {
+  align-self: flex-start;
+  text-decoration: none;
+  color: var(--text-secondary);
+}
+
+.lead-card {
+  position: relative;
+  min-width: 0;
+}
+
+.lead-card:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.kcard-top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.lead-card .title {
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.lead-card .title:hover {
+  text-decoration: underline;
+}
+
+.lead-card .kcard-menu {
+  margin-block: -2px;
+  margin-inline-end: -4px;
+}
+
+.lead-card .who {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lead-card .meta {
+  flex-wrap: wrap;
+}
+
+.lead-card .meta .r {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.lead-card .ax-due {
+  white-space: nowrap;
+}
+
+.ax-prio svg .prio-mark {
+  fill: var(--surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ax-kcard.is-dragging {
+    transform: none;
+  }
+}
+
+/* ── Toolbar view switch (Board / Table) ─────────────────────────────────────────── */
+.view-switch {
+  flex: none;
+}
+
+.view-switch a {
+  gap: var(--space-1);
+}
+
+@media (width <= 639px) {
+  .view-switch a {
+    height: var(--hit-min);
+  }
+}
+
+/* ── Drawer width (quick create = drawer-sm) ─────────────────────────────────────── */
+.ax-drawer.drawer-sm {
+  width: var(--drawer-sm);
+}
+
+@media (width <= 639px) {
+  .ax-drawer.drawer-sm {
+    width: 100%;
+  }
+}
+
+/* ── Won / Lost inline form (native dialog) ──────────────────────────────────────── */
+.outcome-dialog {
+  padding: 0;
+  color: var(--text-primary);
+}
+
+.outcome-dialog[open] {
+  display: flex;
+}
+
+.outcome-dialog::backdrop {
+  background: var(--overlay);
+}
+
+.outcome-dialog form {
+  display: flex;
+  flex-direction: column;
+}
+
+.outcome-dialog .ax-modal-body p {
+  margin: 0;
+}
+
+.outcome-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.outcome-next .ax-btn {
+  text-decoration: none;
+}
+
+/* ── Lead record ─────────────────────────────────────────────────────────────────── */
+.lead-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lead-steps .ax-step .n {
+  padding-inline-end: var(--space-2);
+}
+
+@media (width <= 639px) {
+  .lead-steps {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+}
+
+.activity-card .ax-card-head h2 {
+  margin: 0;
+}
