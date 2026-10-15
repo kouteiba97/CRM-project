@@ -1,0 +1,215 @@
+/*
+ * Payments (list, reminder schedule, client switch) and Follow-ups (grouped list) glue.
+ * Components come from ds/bundle.css (ax-*); every value is a token.
+ */
+
+/* ── Payments ────────────────────────────────────────────────────────────────────── */
+.payments-table .money.is-muted {
+  color: var(--text-tertiary);
+}
+
+/* Cells clip overflow (DS table); the row menu must escape its cell. */
+.payments-table td.act {
+  overflow: visible;
+}
+
+/* Near the bottom of the table the menu opens upwards so the frame never clips it. */
+.payments-table tbody:has(tr:nth-child(5)) tr:nth-last-child(-n + 3) .menu-pop {
+  top: auto;
+  bottom: calc(100% + var(--space-1));
+}
+
+.payments-table .client-link {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.payments-table .client-link:hover {
+  text-decoration: underline;
+}
+
+.rem-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  font-size: 13px;
+}
+
+.rem-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.rem-list .rem-state {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.rem-sent {
+  color: var(--status-success);
+}
+
+.rem-sent .rem-when {
+  color: var(--text-primary);
+}
+
+.rem-due {
+  color: var(--status-warning);
+}
+
+.rem-due .rem-when {
+  color: var(--text-primary);
+}
+
+.rem-upcoming {
+  color: var(--text-tertiary);
+}
+
+.rem-upcoming .rem-when {
+  color: var(--text-secondary);
+}
+
+.rem-switch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.rem-switch .ax-choice {
+  font-size: 13px;
+  min-height: 0;
+}
+
+/* ── Follow-ups ──────────────────────────────────────────────────────────────────── */
+.fu-board {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.fu-group + .fu-group {
+  border-top: 1px solid var(--border-default);
+}
+
+.fu-group-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  height: 32px;
+  padding: 0 var(--space-3);
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+:lang(ar) .fu-group-head {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+
+.fu-group.is-danger > .fu-group-head .name {
+  color: var(--status-danger);
+}
+
+summary.fu-group-head {
+  cursor: pointer;
+}
+
+summary.fu-group-head:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.fu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fu-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.fu-row.is-overdue {
+  box-shadow: inset 2px 0 0 var(--status-danger);
+}
+
+.fu-row.is-done .fu-subject b {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+
+.fu-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.fu-subject {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+
+.fu-subject .ax-icon {
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.fu-subject b {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-about {
+  font-size: 12px;
+}
+
+.fu-outcome {
+  margin-top: var(--space-1);
+}
+
+.fu-when {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.fu-actions-cell {
+  grid-column: 2 / -1;
+}
+
+.fu-actions-cell .fu-form {
+  max-width: 420px;
+}
+
+@media (width <= 639px) {
+  .fu-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .fu-when {
+    grid-column: 2;
+  }
+}

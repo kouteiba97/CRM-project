@@ -1,9 +1,22 @@
-import { setRequestLocale } from "next-intl/server";
-import { ModuleStub, stubMetadata } from "@/components/ModuleStub";
+import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { PaymentsPage } from "@/components/payments/PaymentsPage";
 
-export const generateMetadata = stubMetadata("payments");
+type Props = {
+  params: Promise<{ locale: string; slug?: string[] }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
-  setRequestLocale((await params).locale);
-  return <ModuleStub module="payments" />;
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "nav" });
+  return { title: t("payments") };
+}
+
+/** `/payments`: every payment received, with filters in the URL (`?period=` comes from the dashboard). */
+export default async function Page({ params, searchParams }: Props) {
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+  if (slug && slug.length > 0) notFound();
+  return <PaymentsPage searchParams={await searchParams} />;
 }
