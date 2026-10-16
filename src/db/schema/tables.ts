@@ -49,11 +49,35 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   /** bcrypt hash; null means the user cannot sign in with a password. */
   passwordHash: text("password_hash"),
+  /** Set once the user proved they own the address (link clicked, reset done, or Google). */
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+  /** Bumped on password change; sessions signed with an older value are signed out. */
+  sessionVersion: integer("session_version").notNull().default(0),
   locale: e.locale("locale"),
   theme: e.themePref("theme").notNull().default("light"),
   sidebarCollapsed: boolean("sidebar_collapsed").notNull().default(false),
   ...timestamps(),
 });
+
+/**
+ * One-time links sent by email (password reset, email confirmation). Only the SHA-256 of the
+ * token is stored, so a database leak cannot be turned into working links.
+ */
+export const authTokens = pgTable(
+  "auth_tokens",
+  {
+    id: id(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    kind: e.authTokenKind("kind").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("auth_tokens_user_kind_idx").on(t.userId, t.kind, t.createdAt)],
+);
 
 export const memberships = pgTable(
   "memberships",

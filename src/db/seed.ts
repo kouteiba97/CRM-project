@@ -48,6 +48,7 @@ async function main() {
       name: "Apex Tech",
       theme: "light",
       passwordHash: await bcrypt.hash(DEV_CREDENTIALS.password, 12),
+      emailVerifiedAt: new Date(),
     })
     .returning();
   if (!ws || !owner) throw new Error("seed: workspace/user not created");
