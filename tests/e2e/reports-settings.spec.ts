@@ -98,7 +98,7 @@ test("settings: company details validate, save, and appear on invoices", async (
 test("settings: profile name saves; email is read-only", async ({ page }) => {
   await page.goto("/en/settings?tab=profile");
   const name = page.getByLabel(/^Name/);
-  await expect(page.getByLabel(/^Email/)).toHaveAttribute("readonly", "");
+  await expect(page.locator("#pf-email")).toHaveAttribute("readonly", "");
   await name.fill("");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Fill in this field")).toBeVisible();

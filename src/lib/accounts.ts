@@ -12,6 +12,7 @@ type TokenKind = (typeof authTokenKind.enumValues)[number];
 export const TOKEN_TTL_MS: Record<TokenKind, number> = {
   reset_password: 60 * 60 * 1000,
   verify_email: 7 * 24 * 60 * 60 * 1000,
+  change_email: 24 * 60 * 60 * 1000,
 };
 /** Reset emails per account per 15 minutes; more are silently dropped. */
 export const RESET_LIMIT = 3;
@@ -31,7 +32,7 @@ export function findUserByEmail(email: string) {
 }
 
 /** Issues a one-time token and retires any earlier unused token of the same kind. */
-export async function issueToken(userId: string, kind: TokenKind) {
+export async function issueToken(userId: string, kind: TokenKind, meta: Record<string, string> = {}) {
   const token = randomBytes(32).toString("base64url");
   const now = new Date();
   await db.batch([
@@ -43,6 +44,7 @@ export async function issueToken(userId: string, kind: TokenKind) {
       userId,
       kind,
       tokenHash: hashToken(token),
+      meta,
       expiresAt: new Date(now.getTime() + TOKEN_TTL_MS[kind]),
     }),
   ]);
@@ -85,13 +87,17 @@ export async function peekToken(token: string, kind: TokenKind) {
 
 /** Uses a token exactly once: the conditional update is atomic, so two clicks cannot both win. */
 export async function consumeToken(token: string, kind: TokenKind) {
+  return (await consumeTokenWithMeta(token, kind))?.userId ?? null;
+}
+
+export async function consumeTokenWithMeta(token: string, kind: TokenKind) {
   if (!token) return null;
   const [row] = await db
     .update(authTokens)
     .set({ usedAt: new Date() })
     .where(live(token, kind))
-    .returning({ userId: authTokens.userId });
-  return row?.userId ?? null;
+    .returning({ userId: authTokens.userId, meta: authTokens.meta });
+  return row ?? null;
 }
 
 /** Absolute links for emails: APP_URL in production, else the host this request came to. */
@@ -144,4 +150,22 @@ export async function confirmEmail(token: string) {
     .set({ emailVerifiedAt: sql`coalesce(${users.emailVerifiedAt}, now())` })
     .where(eq(users.id, userId));
   return true;
+}
+
+/**
+ * The link sent to the new address: switches the account to it if nobody took it meanwhile.
+ * Returns the old and new addresses so the caller can notify the old one.
+ */
+export async function confirmEmailChange(token: string) {
+  const row = await consumeTokenWithMeta(token, "change_email");
+  const next = row?.meta.email;
+  if (!row || !next) return { ok: false as const, reason: "expired" as const };
+  if (await findUserByEmail(next)) return { ok: false as const, reason: "taken" as const };
+  const [before] = await db.select().from(users).where(eq(users.id, row.userId));
+  if (!before) return { ok: false as const, reason: "expired" as const };
+  await db
+    .update(users)
+    .set({ email: next, emailVerifiedAt: new Date() })
+    .where(eq(users.id, row.userId));
+  return { ok: true as const, user: before, oldEmail: before.email, newEmail: next };
 }

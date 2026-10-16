@@ -16,7 +16,17 @@ export function safeCallback(raw: unknown, locale: Locale): string {
 }
 
 /** Pages for signed-out visitors (and the email links), which need no session. */
-export const PUBLIC_PAGES = ["login", "signup", "forgot-password", "reset-password", "verify-email"] as const;
+export const PUBLIC_PAGES = [
+  "login",
+  "signup",
+  "forgot-password",
+  "reset-password",
+  "verify-email",
+  "confirm-email",
+  "invite",
+  "privacy",
+  "terms",
+] as const;
 /** Of those, the ones a signed-in user has no reason to see. */
 export const GUEST_ONLY = ["login", "signup", "forgot-password"] as const;
 

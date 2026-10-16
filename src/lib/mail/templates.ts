@@ -10,7 +10,10 @@ const C = { text: "#13303a", muted: "#4b6670", accent: "#1f7a6d", sunken: "#f3f7
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-function layout(locale: Locale, opts: { heading: string; body: string[]; cta: string; url: string; footer: string }) {
+function layout(
+  locale: Locale,
+  opts: { heading: string; body: string[]; cta?: string; url?: string; footer?: string },
+) {
   const dir = dirOf(locale);
   const align = dir === "rtl" ? "right" : "left";
   const html = `<!doctype html>
@@ -22,12 +25,17 @@ function layout(locale: Locale, opts: { heading: string; body: string[]; cta: st
 <p style="margin:0 0 24px;font-weight:600;font-size:15px">Apex CRM</p>
 <h1 style="margin:0 0 16px;font-size:20px;line-height:28px">${esc(opts.heading)}</h1>
 ${opts.body.map((p) => `<p style="margin:0 0 16px;font-size:14px;line-height:22px">${esc(p)}</p>`).join("\n")}
-<p style="margin:24px 0"><a href="${esc(opts.url)}" style="display:inline-block;background:${C.accent};color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:8px">${esc(opts.cta)}</a></p>
-<p style="margin:0;font-size:12px;line-height:18px;color:${C.muted}">${esc(opts.footer)}<br><span dir="ltr" style="word-break:break-all">${esc(opts.url)}</span></p>
+${
+  opts.cta && opts.url
+    ? `<p style="margin:24px 0"><a href="${esc(opts.url)}" style="display:inline-block;background:${C.accent};color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:8px">${esc(opts.cta)}</a></p>
+<p style="margin:0;font-size:12px;line-height:18px;color:${C.muted}">${esc(opts.footer ?? "")}<br><span dir="ltr" style="word-break:break-all">${esc(opts.url)}</span></p>`
+    : ""
+}
 </td></tr></table>
 </td></tr></table>
 </body></html>`;
-  const text = [opts.heading, "", ...opts.body, "", `${opts.cta}: ${opts.url}`].join("\n");
+  const cta = opts.cta && opts.url ? ["", `${opts.cta}: ${opts.url}`] : [];
+  const text = [opts.heading, "", ...opts.body, ...cta].join("\n");
   return { html, text };
 }
 
@@ -55,6 +63,60 @@ export async function verifyEmailMail(to: string, name: string, locale: Locale, 
       heading: t("verify_heading"),
       body: [t("greeting", { name }), t("verify_body")],
       cta: t("verify_cta"),
+      url,
+      footer: t("link_fallback"),
+    }),
+  };
+}
+
+/** Security notice to the account's address; no link, so it cannot be used for phishing look-alikes. */
+export async function securityNoticeMail(
+  to: string,
+  name: string,
+  locale: Locale,
+  kind: "password_changed" | "email_changed" | "two_factor_on" | "two_factor_off",
+  vars: Record<string, string> = {},
+): Promise<Mail> {
+  const t = await getTranslations({ locale, namespace: "email" });
+  return {
+    to,
+    subject: t(`notice_${kind}_subject`),
+    ...layout(locale, {
+      heading: t(`notice_${kind}_subject`),
+      body: [t("greeting", { name }), t(`notice_${kind}_body`, vars), t("notice_not_you")],
+    }),
+  };
+}
+
+export async function changeEmailMail(to: string, name: string, locale: Locale, url: string): Promise<Mail> {
+  const t = await getTranslations({ locale, namespace: "email" });
+  return {
+    to,
+    subject: t("change_subject"),
+    ...layout(locale, {
+      heading: t("change_subject"),
+      body: [t("greeting", { name }), t("change_body")],
+      cta: t("change_cta"),
+      url,
+      footer: t("link_fallback"),
+    }),
+  };
+}
+
+export async function inviteMail(
+  to: string,
+  locale: Locale,
+  vars: { inviter: string; workspace: string },
+  url: string,
+): Promise<Mail> {
+  const t = await getTranslations({ locale, namespace: "email" });
+  return {
+    to,
+    subject: t("invite_subject", vars),
+    ...layout(locale, {
+      heading: t("invite_subject", vars),
+      body: [t("invite_body", vars), t("invite_expiry")],
+      cta: t("invite_cta"),
       url,
       footer: t("link_fallback"),
     }),

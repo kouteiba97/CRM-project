@@ -11,6 +11,7 @@ import { createAccount, findUserByEmail } from "@/lib/accounts";
 import { audit } from "@/lib/audit";
 import { LOCALES, type Locale } from "@/lib/format";
 import { clearLimit, clientIp, hit, limited, LIMITS } from "@/lib/rate-limit";
+import { validProof } from "@/lib/session-proof";
 
 const credentials = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
@@ -78,7 +79,7 @@ async function googleUser(email: string, name: string) {
   return (await findUserByEmail(email)) ?? { id: userId, sessionVersion: 0 };
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update: refreshSession } = NextAuth({
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: { signIn: "/login", error: "/login" },
   trustHost: true,
@@ -123,7 +124,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "google") return Boolean(profile?.email && profile.email_verified);
       return true;
     },
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger, session }) {
+      // After a password change or "sign out other devices", the session that made the change
+      // adopts the new version — only with the server's signed proof (see session-proof.ts).
+      if (trigger === "update") {
+        if (!token.sub) return token;
+        const [row] = await db
+          .select({ sv: users.sessionVersion })
+          .from(users)
+          .where(eq(users.id, token.sub));
+        const proof = (session as { svProof?: unknown } | undefined)?.svProof;
+        if (row && validProof(token.sub, row.sv, proof)) token.sv = row.sv;
+        return token;
+      }
       if (account?.provider === "google" && profile?.email) {
         const u = await googleUser(profile.email.toLowerCase(), profile.name ?? profile.email.split("@")[0]!);
         token.sub = u.id;

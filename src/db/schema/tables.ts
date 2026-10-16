@@ -74,6 +74,8 @@ export const authTokens = pgTable(
     tokenHash: text("token_hash").notNull().unique(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     usedAt: timestamp("used_at", { withTimezone: true }),
+    /** Extra data the link carries, e.g. the new address for change_email. */
+    meta: jsonb("meta").$type<Record<string, string>>().notNull().default({}),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("auth_tokens_user_kind_idx").on(t.userId, t.kind, t.createdAt)],
@@ -441,4 +443,24 @@ export const auditEvents = pgTable(
     at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("audit_ws_time").on(t.workspaceId, t.at), index("audit_actor_time").on(t.actorId, t.at)],
+);
+
+/** Invitations to join a workspace; the emailed link carries a token whose hash is stored. */
+export const invites = pgTable(
+  "invites",
+  {
+    id: id(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: e.memberRole("role").notNull().default("member"),
+    tokenHash: text("token_hash").notNull().unique(),
+    invitedBy: uuid("invited_by").references(() => users.id, { onDelete: "set null" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("invites_ws_idx").on(t.workspaceId, t.createdAt)],
 );

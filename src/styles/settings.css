@@ -106,3 +106,17 @@
   padding-top: var(--space-3);
   border-top: 1px solid var(--border-subtle);
 }
+
+/* Account › Delete: the one destructive card on the page. */
+.danger-zone {
+  border-color: var(--status-danger);
+}
+
+.audit-scroll {
+  overflow-x: auto;
+}
+
+.audit-table td {
+  overflow: visible;
+  white-space: normal;
+}

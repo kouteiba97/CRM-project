@@ -22,7 +22,7 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
   const callback = safeCallback(sp.callbackUrl, locale as Locale);
   const callbackUrl = callback === `/${locale}` ? undefined : callback;
   // Auth.js sends failed Google sign-ins back here with ?error=…
-  const notice = sp.error ? "error_google" : sp.expired ? "notice_expired" : null;
+  const notice = sp.error ? "error_google" : sp.deleted ? "notice_deleted" : sp.expired ? "notice_expired" : null;
 
   return (
     <AuthCard

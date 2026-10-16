@@ -1,25 +1,31 @@
 import { cookies } from "next/headers";
-import { and, eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
-import { db } from "@/db/client";
-import { memberships } from "@/db/schema";
+import { TabLinks } from "@/components/clients/ProfileClientParts";
+import { can } from "@/lib/roles";
 import { getSession } from "@/lib/session";
 import { SIDEBAR_COOKIE } from "@/lib/theme";
-import { TabLinks } from "@/components/clients/ProfileClientParts";
+import { DeleteAccountCard, EmailForm, PasswordForm, SessionsCard } from "./AccountForms";
+import { AuditLog } from "./AuditLog";
+import { DataPanel } from "./DataPanel";
 import { GeneralSettings, ProfileForm, WorkspaceForm } from "./SettingsForms";
 
-const TABS = ["general", "workspace", "profile"] as const;
+const TABS = ["general", "account", "security", "workspace", "data"] as const;
+type Tab = (typeof TABS)[number];
 type SP = Record<string, string | string[] | undefined>;
 
-/** Settings: General (language, theme, sidebar) · Workspace (details on documents) · Profile. Tab in `?tab=`. */
+/**
+ * Settings, one tab per `?tab=`: General (language, theme, sidebar) · Account (name, email,
+ * password, delete) · Security (sessions, activity log) · Workspace (details on documents) ·
+ * Data (exports).
+ */
 export async function SettingsPage({ searchParams }: { searchParams: SP }) {
   const session = await getSession();
   const t = await getTranslations("settings");
   const tn = await getTranslations("nav");
   const raw = typeof searchParams.tab === "string" ? searchParams.tab : "general";
-  const tab = (TABS as readonly string[]).includes(raw)
-    ? (raw as (typeof TABS)[number])
-    : "general";
+  // `profile` was the old name of the Account tab.
+  const wanted = raw === "profile" ? "account" : raw;
+  const tab: Tab = (TABS as readonly string[]).includes(wanted) ? (wanted as Tab) : "general";
   const stored = (await cookies()).get(SIDEBAR_COOKIE)?.value;
   const sidebar =
     stored === "collapsed" || stored === "expanded"
@@ -27,13 +33,8 @@ export async function SettingsPage({ searchParams }: { searchParams: SP }) {
       : session.user.sidebarCollapsed
         ? "collapsed"
         : "auto";
-  const [m] = await db
-    .select({ role: memberships.role })
-    .from(memberships)
-    .where(
-      and(eq(memberships.workspaceId, session.workspaceId), eq(memberships.userId, session.userId)),
-    );
   const ws = session.workspace;
+  const hasPassword = Boolean(session.user.passwordHash);
 
   return (
     <>
@@ -50,16 +51,25 @@ export async function SettingsPage({ searchParams }: { searchParams: SP }) {
           href: key === "general" ? "/settings" : `/settings?tab=${key}`,
         }))}
       />
-      <section
-        id="settings-panel"
-        role="tabpanel"
-        aria-labelledby={`tab-${tab}`}
-        className="settings-panel"
-      >
+      <section id="settings-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className="settings-panel">
         {tab === "general" && <GeneralSettings sidebar={sidebar} />}
+        {tab === "account" && (
+          <div className="settings-stack">
+            <ProfileForm initial={{ name: session.user.name }} email={session.user.email} />
+            <EmailForm email={session.user.email} hasPassword={hasPassword} />
+            <PasswordForm hasPassword={hasPassword} />
+            <DeleteAccountCard email={session.user.email} hasPassword={hasPassword} />
+          </div>
+        )}
+        {tab === "security" && (
+          <div className="settings-stack">
+            <SessionsCard />
+            <AuditLog session={session} />
+          </div>
+        )}
         {tab === "workspace" && (
           <WorkspaceForm
-            readOnly={m?.role !== "owner"}
+            readOnly={!can(session.role, "admin")}
             initial={{
               name: ws.name,
               address: ws.address ?? "",
@@ -73,9 +83,7 @@ export async function SettingsPage({ searchParams }: { searchParams: SP }) {
             }}
           />
         )}
-        {tab === "profile" && (
-          <ProfileForm initial={{ name: session.user.name }} email={session.user.email} />
-        )}
+        {tab === "data" && <DataPanel canExportWorkspace={can(session.role, "admin")} />}
       </section>
     </>
   );
