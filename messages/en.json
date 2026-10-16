@@ -1315,7 +1315,37 @@
       "error_last_owner": "A workspace needs at least one owner: make someone else owner first.",
       "error_self": "You are the only member: there is no one to leave the workspace to."
     },
-    "tab_team": "Team"
+    "tab_team": "Team",
+    "twoFactor": {
+      "title": "Two-step login",
+      "help": "After your password, sign-in also asks for a 6-digit code from an authenticator app on your phone (Google Authenticator, Microsoft Authenticator, 2FAS…). A stolen password alone is then not enough.",
+      "turnOn": "Turn on two-step login",
+      "turnOff": "Turn off",
+      "on": "On since {date}.",
+      "newCodes": "New recovery codes",
+      "step1": "Install an authenticator app on your phone if you don't have one.",
+      "step2": "In the app, add an account and scan this code:",
+      "qrAlt": "QR code to add Apex CRM to your authenticator app",
+      "manual": "Can't scan? Type this key instead:",
+      "step3": "Type the 6-digit code the app shows.",
+      "code": "6-digit code",
+      "verify": "Verify and turn on",
+      "cancel": "Cancel",
+      "badCode": "That code didn't work. Check the time on your phone and try the newest code.",
+      "turnedOn": "Two-step login is on.",
+      "codesWarning": "Save these recovery codes now. Each works once if you lose your phone. They won't be shown again.",
+      "download": "Download as a text file",
+      "savedThem": "I saved my recovery codes somewhere safe",
+      "done": "Done",
+      "offTitle": "Turn off two-step login?",
+      "offBody": "Your password alone will sign you in again.",
+      "regenTitle": "Make new recovery codes?",
+      "regenBody": "Your old recovery codes stop working.",
+      "password": "Current password",
+      "badPassword": "The password is not correct.",
+      "codeOrRecovery": "Code from the app, or a recovery code",
+      "turnedOff": "Two-step login is off."
+    }
   },
   "auth": {
     "title": "Sign in",
@@ -1393,7 +1423,13 @@
     "invite_sign_out": "Sign out",
     "invite_sign_in": "You already have an account with <b>{email}</b>. Sign in to accept.",
     "invite_join": "Join {workspace}",
-    "invite_create_join": "Create account and join"
+    "invite_create_join": "Create account and join",
+    "code_lead": "Two-step login is on for this account. Open your authenticator app.",
+    "code_label": "Code",
+    "code_help": "The 6-digit code from the app, or one of your recovery codes.",
+    "code_submit": "Verify",
+    "code_back": "Back",
+    "error_2fa_invalid": "That code didn't work. Try the newest code from the app."
   },
   "email": {
     "greeting": "Hello {name},",

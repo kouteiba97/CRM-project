@@ -1315,7 +1315,37 @@
       "error_last_owner": "Un espace a besoin d'au moins un propriétaire : nommez d'abord quelqu'un d'autre propriétaire.",
       "error_self": "Vous êtes le seul membre : personne ne peut reprendre l'espace."
     },
-    "tab_team": "Équipe"
+    "tab_team": "Équipe",
+    "twoFactor": {
+      "title": "Connexion en deux étapes",
+      "help": "Après le mot de passe, la connexion demande aussi un code à 6 chiffres d'une application d'authentification sur votre téléphone (Google Authenticator, Microsoft Authenticator, 2FAS…). Un mot de passe volé ne suffit alors plus.",
+      "turnOn": "Activer la connexion en deux étapes",
+      "turnOff": "Désactiver",
+      "on": "Activée depuis le {date}.",
+      "newCodes": "Nouveaux codes de secours",
+      "step1": "Installez une application d'authentification sur votre téléphone si vous n'en avez pas.",
+      "step2": "Dans l'application, ajoutez un compte et scannez ce code :",
+      "qrAlt": "QR code pour ajouter Apex CRM à votre application d'authentification",
+      "manual": "Impossible de scanner ? Saisissez cette clé :",
+      "step3": "Saisissez le code à 6 chiffres affiché par l'application.",
+      "code": "Code à 6 chiffres",
+      "verify": "Vérifier et activer",
+      "cancel": "Annuler",
+      "badCode": "Ce code ne fonctionne pas. Vérifiez l'heure de votre téléphone et essayez le code le plus récent.",
+      "turnedOn": "La connexion en deux étapes est activée.",
+      "codesWarning": "Enregistrez ces codes de secours maintenant. Chacun fonctionne une fois si vous perdez votre téléphone. Ils ne seront plus affichés.",
+      "download": "Télécharger en fichier texte",
+      "savedThem": "J'ai enregistré mes codes de secours en lieu sûr",
+      "done": "Terminé",
+      "offTitle": "Désactiver la connexion en deux étapes ?",
+      "offBody": "Votre mot de passe suffira de nouveau pour vous connecter.",
+      "regenTitle": "Créer de nouveaux codes de secours ?",
+      "regenBody": "Vos anciens codes de secours ne fonctionneront plus.",
+      "password": "Mot de passe actuel",
+      "badPassword": "Le mot de passe est incorrect.",
+      "codeOrRecovery": "Code de l'application, ou code de secours",
+      "turnedOff": "La connexion en deux étapes est désactivée."
+    }
   },
   "auth": {
     "title": "Connexion",
@@ -1393,7 +1423,13 @@
     "invite_sign_out": "Se déconnecter",
     "invite_sign_in": "Vous avez déjà un compte avec <b>{email}</b>. Connectez-vous pour accepter.",
     "invite_join": "Rejoindre {workspace}",
-    "invite_create_join": "Créer le compte et rejoindre"
+    "invite_create_join": "Créer le compte et rejoindre",
+    "code_lead": "La connexion en deux étapes est activée pour ce compte. Ouvrez votre application d'authentification.",
+    "code_label": "Code",
+    "code_help": "Le code à 6 chiffres de l'application, ou l'un de vos codes de secours.",
+    "code_submit": "Vérifier",
+    "code_back": "Retour",
+    "error_2fa_invalid": "Ce code ne fonctionne pas. Essayez le code le plus récent de l'application."
   },
   "email": {
     "greeting": "Bonjour {name},",

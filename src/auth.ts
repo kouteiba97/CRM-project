@@ -12,10 +12,13 @@ import { audit } from "@/lib/audit";
 import { LOCALES, type Locale } from "@/lib/format";
 import { clearLimit, clientIp, hit, limited, LIMITS } from "@/lib/rate-limit";
 import { validProof } from "@/lib/session-proof";
+import { cleanCode, redeemRecoveryCode, verifyTotp } from "@/lib/two-factor";
 
 const credentials = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
   password: z.string().min(1).max(200),
+  /** Two-step login: the authenticator code or a recovery code (second round only). */
+  code: z.string().max(40).optional(),
 });
 
 // Compared against when the email is unknown, so both paths take the same time.
@@ -28,6 +31,12 @@ export async function clearFailures(email: string) {
 
 export class TooManyAttempts extends CredentialsSignin {
   code = "too_many";
+}
+export class TwoFactorRequired extends CredentialsSignin {
+  code = "2fa_required";
+}
+export class TwoFactorInvalid extends CredentialsSignin {
+  code = "2fa_invalid";
 }
 
 declare module "next-auth" {
@@ -89,7 +98,7 @@ export const { handlers, auth, signIn, signOut, unstable_update: refreshSession 
       async authorize(input) {
         const parsed = credentials.safeParse(input);
         if (!parsed.success) return null;
-        const { email, password } = parsed.data;
+        const { email, password, code } = parsed.data;
         // Per IP (password spraying across accounts) and per email (guessing one account).
         if ((await hit(`login-ip:${await clientIp()}`, LIMITS.loginAttemptsPerIp)) > LIMITS.loginAttemptsPerIp.max) {
           throw new TooManyAttempts();
@@ -102,6 +111,10 @@ export const { handlers, auth, signIn, signOut, unstable_update: refreshSession 
             name: users.name,
             hash: users.passwordHash,
             sessionVersion: users.sessionVersion,
+            totpSecret: users.totpSecret,
+            totpEnabledAt: users.totpEnabledAt,
+            totpLastStep: users.totpLastStep,
+            recoveryCodes: users.recoveryCodes,
           })
           .from(users)
           .where(eq(sql`lower(${users.email})`, email))
@@ -112,8 +125,23 @@ export const { handlers, auth, signIn, signOut, unstable_update: refreshSession 
           await audit("auth.sign_in_failed", { actorId: user?.id, meta: { email } });
           return null;
         }
+        if (user.totpEnabledAt) {
+          // Password right; now the second step. The form keeps email + password and asks again.
+          if (!code) throw new TwoFactorRequired();
+          if (await limited(`2fa:${user.id}`, LIMITS.twoFactorFailures)) throw new TooManyAttempts();
+          const clean = cleanCode(code);
+          const viaApp = await verifyTotp(user, clean);
+          const viaRecovery = !viaApp && (await redeemRecoveryCode(user, clean));
+          if (!viaApp && !viaRecovery) {
+            await hit(`2fa:${user.id}`, LIMITS.twoFactorFailures);
+            await audit("auth.sign_in_failed", { actorId: user.id, meta: { email, step: "2fa" } });
+            throw new TwoFactorInvalid();
+          }
+          await clearLimit(`2fa:${user.id}`);
+          if (viaRecovery) await audit("auth.2fa_recovery_used", { actorId: user.id });
+        }
         await clearLimit(`login:${email}`);
-        await audit("auth.sign_in", { actorId: user.id, meta: { method: "password" } });
+        await audit("auth.sign_in", { actorId: user.id, meta: { method: user.totpEnabledAt ? "password+2fa" : "password" } });
         return { id: user.id, email: user.email, name: user.name, sessionVersion: user.sessionVersion };
       },
     }),

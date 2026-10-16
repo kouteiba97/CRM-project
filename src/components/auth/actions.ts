@@ -31,24 +31,32 @@ const locale = async () => (await getLocale()) as Locale;
 const str = (form: FormData, key: string) => String(form.get(key) ?? "");
 
 /** Signs in with a password; Next's success redirect is thrown and must propagate. */
-async function passwordSignIn(email: string, password: string, redirectTo: string) {
-  await signIn("credentials", { email, password, redirectTo });
+async function passwordSignIn(email: string, password: string, redirectTo: string, code?: string) {
+  await signIn("credentials", { email, password, redirectTo, ...(code ? { code } : {}) });
 }
 
 // ── Sign in / out ─────────────────────────────────────────────────────────────────────────
-export type LoginState = { error: "invalid" | "too_many" | "missing" | null; email: string };
+export type LoginState = {
+  error: "invalid" | "too_many" | "missing" | "2fa_invalid" | null;
+  /** True once the password was right and the account wants a second step. */
+  needsCode: boolean;
+  email: string;
+};
 
-export async function login(_prev: LoginState, form: FormData): Promise<LoginState> {
+export async function login(prev: LoginState, form: FormData): Promise<LoginState> {
   const email = str(form, "email").trim();
   const password = str(form, "password");
-  if (!email || !password) return { error: "missing", email };
+  const code = str(form, "code").trim();
+  if (!email || !password) return { error: "missing", needsCode: false, email };
   try {
-    await passwordSignIn(email, password, safeCallback(form.get("callbackUrl"), await locale()));
-    return { error: null, email };
+    await passwordSignIn(email, password, safeCallback(form.get("callbackUrl"), await locale()), code || undefined);
+    return { error: null, needsCode: false, email };
   } catch (error) {
     if (error instanceof AuthError) {
-      const code = "code" in error && error.code === "too_many" ? "too_many" : "invalid";
-      return { error: code, email };
+      const c = "code" in error ? String(error.code) : "";
+      if (c === "2fa_required") return { error: null, needsCode: true, email };
+      if (c === "2fa_invalid") return { error: "2fa_invalid", needsCode: true, email };
+      return { error: c === "too_many" ? "too_many" : "invalid", needsCode: prev.needsCode && c === "too_many", email };
     }
     throw error;
   }

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { formatter, type Locale } from "@/lib/format";
 import { TabLinks } from "@/components/clients/ProfileClientParts";
 import { can } from "@/lib/roles";
 import { getSession } from "@/lib/session";
@@ -9,6 +10,7 @@ import { AuditLog } from "./AuditLog";
 import { DataPanel } from "./DataPanel";
 import { GeneralSettings, ProfileForm, WorkspaceForm } from "./SettingsForms";
 import { TeamPanel } from "./TeamPanel";
+import { TwoFactorCard } from "./TwoFactorCard";
 
 const TABS = ["general", "account", "security", "workspace", "team", "data"] as const;
 type Tab = (typeof TABS)[number];
@@ -36,6 +38,7 @@ export async function SettingsPage({ searchParams }: { searchParams: SP }) {
         : "auto";
   const ws = session.workspace;
   const hasPassword = Boolean(session.user.passwordHash);
+  const f = formatter((await getLocale()) as Locale);
 
   return (
     <>
@@ -64,6 +67,11 @@ export async function SettingsPage({ searchParams }: { searchParams: SP }) {
         )}
         {tab === "security" && (
           <div className="settings-stack">
+            <TwoFactorCard
+              enabled={Boolean(session.user.totpEnabledAt)}
+              since={session.user.totpEnabledAt ? f.date(session.user.totpEnabledAt) : null}
+              hasPassword={hasPassword}
+            />
             <SessionsCard />
             <AuditLog session={session} />
           </div>

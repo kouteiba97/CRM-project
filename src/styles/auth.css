@@ -153,3 +153,9 @@
   width: 100%;
   justify-content: center;
 }
+
+/* One-time codes: wide spacing makes the digits easy to compare with the app. */
+.login-code {
+  letter-spacing: 0.2em;
+  font-family: var(--font-mono);
+}

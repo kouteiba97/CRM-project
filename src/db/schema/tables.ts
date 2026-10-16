@@ -53,6 +53,13 @@ export const users = pgTable("users", {
   emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
   /** Bumped on password change; sessions signed with an older value are signed out. */
   sessionVersion: integer("session_version").notNull().default(0),
+  /** Two-step login: AES-GCM-encrypted TOTP secret; set but not enabled while setting up. */
+  totpSecret: text("totp_secret"),
+  totpEnabledAt: timestamp("totp_enabled_at", { withTimezone: true }),
+  /** Last accepted 30-second step, so a code cannot be replayed. */
+  totpLastStep: bigint("totp_last_step", { mode: "number" }),
+  /** SHA-256 hashes of unused one-time recovery codes. */
+  recoveryCodes: text("recovery_codes").array().notNull().default(sql`'{}'::text[]`),
   locale: e.locale("locale"),
   theme: e.themePref("theme").notNull().default("light"),
   sidebarCollapsed: boolean("sidebar_collapsed").notNull().default(false),
