@@ -28,7 +28,7 @@ for (const loc of LOCALES) {
     await expect(page.locator("html")).toHaveAttribute("dir", loc.dir);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(loc.title);
     await expect(page.getByLabel(loc.email)).toBeFocused();
-    await expect(page.getByLabel(loc.password)).toHaveAttribute("type", "password");
+    await expect(page.getByLabel(loc.password, { exact: true })).toHaveAttribute("type", "password");
     expect(await page.locator("body").innerText()).not.toMatch(/[٠-٩۰-۹]/);
     await expectAccessible(page);
     await page.screenshot({ path: `screenshots/login-${loc.code}.png`, fullPage: true });
@@ -41,14 +41,14 @@ test("wrong password shows an error and keeps the email; right one returns to th
   await page.goto("/en/clients");
   await expect(page).toHaveURL(/\/en\/login\?callbackUrl=%2Fen%2Fclients$/);
   await page.getByLabel("Email").fill(DEV_CREDENTIALS.email);
-  await page.getByLabel("Password").fill("not-the-password");
+  await page.getByLabel("Password", { exact: true }).fill("not-the-password");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.locator("#login-error")).toHaveText("Email or password is incorrect.");
   await expect(page.getByLabel("Email")).toHaveValue(DEV_CREDENTIALS.email);
-  await expect(page.getByLabel("Password")).toBeFocused();
-  await expect(page.getByLabel("Password")).toHaveValue("");
+  await expect(page.getByLabel("Password", { exact: true })).toBeFocused();
+  await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
 
-  await page.getByLabel("Password").fill(DEV_CREDENTIALS.password);
+  await page.getByLabel("Password", { exact: true }).fill(DEV_CREDENTIALS.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/en\/clients$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -68,7 +68,7 @@ test("wrong password shows an error and keeps the email; right one returns to th
 test("an off-site callbackUrl is ignored", async ({ page }) => {
   await page.goto("/fr/login?callbackUrl=%2F%2Fevil.example%2Fx");
   await page.getByLabel("E-mail").fill(DEV_CREDENTIALS.email);
-  await page.getByLabel("Mot de passe").fill(DEV_CREDENTIALS.password);
+  await page.getByLabel("Mot de passe", { exact: true }).fill(DEV_CREDENTIALS.password);
   await page.getByRole("button", { name: "Se connecter" }).click();
   await expect(page).toHaveURL(/^http:\/\/localhost:3000\/fr$/);
 });

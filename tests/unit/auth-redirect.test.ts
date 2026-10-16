@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { localeOf, safeCallback } from "@/lib/auth-redirect";
+import { authPage, localeOf, safeCallback } from "@/lib/auth-redirect";
 
 describe("safeCallback", () => {
   it("keeps same-site paths inside a locale", () => {
@@ -38,5 +38,21 @@ describe("localeOf", () => {
     expect(localeOf("/en")).toBe("en");
     expect(localeOf("/clients")).toBeNull();
     expect(localeOf("/")).toBeNull();
+  });
+});
+
+describe("authPage", () => {
+  it("recognises the signed-out pages only", () => {
+    expect(authPage("/fr/login")).toBe("login");
+    expect(authPage("/ar/reset-password?token=x")).toBe("reset-password");
+    expect(authPage("/en/signup/")).toBe("signup");
+    expect(authPage("/en/clients")).toBeNull();
+    expect(authPage("/en/login-help")).toBeNull();
+    expect(authPage("/en/login/extra")).toBeNull();
+  });
+
+  it("keeps every auth page out of callbacks", () => {
+    expect(safeCallback("/en/forgot-password", "en")).toBe("/en");
+    expect(safeCallback("/en/reset-password?token=x", "en")).toBe("/en");
   });
 });

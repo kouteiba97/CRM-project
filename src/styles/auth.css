@@ -5,7 +5,11 @@
 .login-page {
   min-height: 100dvh;
   display: grid;
-  place-items: center;
+
+  /* minmax(0, …) so long words cannot widen the card past a 360px screen. */
+  grid-template-columns: minmax(0, 400px);
+  justify-content: center;
+  align-items: center;
   padding: var(--space-6) var(--space-4);
   background: var(--surface-sunken);
 }
@@ -54,11 +58,95 @@
   border-radius: var(--radius-md);
   background: var(--status-danger-subtle);
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .login-alert .ax-icon {
   flex: none;
   color: var(--status-danger);
+}
+
+.login-alert.is-success {
+  background: var(--status-success-subtle);
+}
+
+.login-alert.is-success .ax-icon {
+  color: var(--status-success);
+}
+
+.login-alert.is-info {
+  background: var(--status-info-subtle);
+}
+
+.login-alert.is-info .ax-icon {
+  color: var(--status-info);
+}
+
+.login-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.login-link {
+  color: var(--text-link);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.login-footer {
+  margin: 0;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.login-footer .login-link {
+  font-size: inherit;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--border-default);
+}
+
+/* The toggle sits inside the field; the box keeps the control height. */
+.password-box {
+  padding-inline-end: var(--space-1);
+}
+
+/* ── In-app: confirm your email ──────────────────────────────────────────────────── */
+.verify-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin-block-end: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--status-warning-subtle);
+  color: var(--text-primary);
+}
+
+.verify-banner > .ax-icon {
+  flex: none;
+  color: var(--status-warning);
+}
+
+.verify-banner p {
+  flex: 1 1 240px;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .login-submit {

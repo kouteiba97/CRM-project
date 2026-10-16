@@ -15,6 +15,14 @@ export type Session = {
 };
 
 /**
+ * A cookie for a user that no longer exists or was signed out remotely: clearing it needs a
+ * route handler (rendering cannot set cookies), otherwise the proxy and this check would loop.
+ */
+async function endSessionUrl() {
+  return `/api/session/end?locale=${await getLocale()}`;
+}
+
+/**
  * The signed-in user and their workspace. The Data Access Layer check: every page, layout and
  * Server Action goes through here, so a missing or stale session always ends at the login page
  * (the proxy's cookie check is only the optimistic first pass).
@@ -33,6 +41,8 @@ export const getSession = cache(async (): Promise<Session> => {
           .limit(1)
       )[0]
     : undefined;
-  if (!row) redirect(`/${await getLocale()}/login`);
+  if (!row) redirect(id ? await endSessionUrl() : `/${await getLocale()}/login`);
+  // Password changed (or account re-secured) since this session was signed: sign it out.
+  if (row.user.sessionVersion !== (authed?.sessionVersion ?? 0)) redirect(await endSessionUrl());
   return { userId: row.user.id, workspaceId: row.workspace.id, user: row.user, workspace: row.workspace };
 });

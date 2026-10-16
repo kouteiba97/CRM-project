@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { setRequestLocale } from "next-intl/server";
+import { VerifyBanner } from "@/components/auth/VerifyBanner";
 import { AppShell, type SidebarState } from "@/components/shell/AppShell";
 import { getSidebarCounts } from "@/db/queries/dashboard";
 import { getSession } from "@/lib/session";
@@ -25,6 +26,7 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[loc
       userName={session.user.name}
       initialSidebar={sidebar}
     >
+      {!session.user.emailVerifiedAt && <VerifyBanner email={session.user.email} />}
       {children}
     </AppShell>
   );
