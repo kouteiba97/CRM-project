@@ -11,3 +11,7 @@ playwright-report/
 
 # Playwright signed-in state
 tests/.auth/
+
+# User guide build intermediates (npm run guide)
+docs/guide/shots/
+docs/guide/video-raw/
