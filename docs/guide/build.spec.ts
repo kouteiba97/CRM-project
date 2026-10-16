@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { test } from "@playwright/test";
 import { AR, EN, type Block, type Guide } from "./content";
+import { withUpdates } from "./updates";
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
@@ -28,9 +29,11 @@ function block(guide: Guide, b: Block): string {
 }
 
 function html(guide: Guide) {
-  const toc = guide.sections.map((s) => `<li>${esc(s.title)}</li>`).join("");
+  // Chapters are numbered here, so content.ts can add or reorder them freely.
+  const title = (t: string, i: number) => `${i + 1}. ${t.replace(/^\d+\.\s*/, "")}`;
+  const toc = guide.sections.map((s, i) => `<li>${esc(title(s.title, i))}</li>`).join("");
   const body = guide.sections
-    .map((s) => `<section><h2 id="${s.id}">${esc(s.title)}</h2>${s.blocks.map((b) => block(guide, b)).join("\n")}</section>`)
+    .map((s, i) => `<section><h2 id="${s.id}">${esc(title(s.title, i))}</h2>${s.blocks.map((b) => block(guide, b)).join("\n")}</section>`)
     .join("\n");
   return `<!doctype html><html lang="${guide.lang}" dir="${guide.dir}"><head><meta charset="utf-8"><style>
   @page { size: A4; margin: 18mm 16mm 20mm; }
@@ -74,7 +77,7 @@ function html(guide: Guide) {
   </body></html>`;
 }
 
-for (const guide of [EN, AR]) {
+for (const guide of [EN, AR].map(withUpdates)) {
   test(`build PDF ${guide.lang}`, async ({ page }) => {
     const source = html(guide);
     // GUIDE_HTML=<dir> also keeps the HTML, to preview the layout without a PDF reader.

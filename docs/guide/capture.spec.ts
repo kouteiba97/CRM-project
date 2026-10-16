@@ -83,6 +83,16 @@ for (const locale of ["en", "ar"] as const) {
     await shot(page, "reports");
     await page.goto(`/${locale}/settings?tab=workspace`);
     await shot(page, "settings");
+    await page.goto(`/${locale}/settings?tab=security`);
+    await shot(page, "security");
+    await page.goto(`/${locale}/settings?tab=team`);
+    await shot(page, "team");
+    await page.goto(`/${locale}/expenses?period=all`);
+    await shot(page, "expenses");
+    await page.goto(`/${locale}/clients/import`);
+    await page.locator('input[type="file"]').setInputFiles("public/templates/clients-import.csv");
+    await page.locator("#map-name").waitFor();
+    await shot(page, "import");
     await context.close();
   });
 }

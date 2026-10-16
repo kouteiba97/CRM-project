@@ -378,6 +378,15 @@ async function main() {
     { workspaceId: ws.id, kind: "project", year: today.getFullYear(), nextValue: 15 },
   ]);
 
+  // ── Expenses (for Reports › Expenses & profit) ────────────────────────────────────────
+  await db.insert(s.expenses).values([
+    { ...base, spentOn: d(-2), category: "software", vendor: "Figma", description: "Design tool subscription", amountMinor: eur(45), currency: "EUR" },
+    { ...base, spentOn: d(-5), category: "office", vendor: "Coworking Alger", description: "Desk rent", amountMinor: eur(180), currency: "EUR" },
+    { ...base, spentOn: d(-9), category: "travel", vendor: "Air Algérie", description: "Client visit in Oran", amountMinor: eur(120), currency: "EUR" },
+    { ...base, spentOn: d(-14), category: "software", vendor: "Vercel", description: "Hosting", amountMinor: eur(20), currency: "EUR" },
+    { ...base, spentOn: d(-21), category: "marketing", vendor: "Meta", description: "Ads campaign", amountMinor: eur(90), currency: "EUR" },
+  ]);
+
   console.log(`Seeded workspace "${ws.name}" (${ws.id}) for ${owner.email}`);
 }
 
