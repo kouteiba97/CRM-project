@@ -11,7 +11,9 @@ export function safeCallback(raw: unknown, locale: Locale): string {
   }
   const segment = raw.split(/[/?#]/)[1] ?? "";
   if (!(LOCALES as readonly string[]).includes(segment)) return home;
-  if (authPage(raw)) return home;
+  // Back to an invitation after signing in is fine; back to login/reset pages is not.
+  const page = authPage(raw);
+  if (page && page !== "invite") return home;
   return raw;
 }
 

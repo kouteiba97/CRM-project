@@ -1,8 +1,10 @@
 "use client";
 
-import { ChevronDown, PanelLeftClose, PanelLeftOpen, Settings } from "lucide-react";
+import { startTransition } from "react";
+import { Check, ChevronDown, PanelLeftClose, PanelLeftOpen, Settings, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { switchWorkspace } from "@/components/settings/account-actions";
 import type { SidebarCounts } from "@/db/queries/dashboard";
 import { Menu } from "./Menu";
 import { activeKey, NAV, NAV_FOOTER, type NavItem } from "./nav";
@@ -12,15 +14,26 @@ import { initials } from "./initials";
 export function Sidebar({
   counts,
   workspaceName,
+  workspaceId,
+  workspaces,
   onToggle,
 }: {
   counts: SidebarCounts;
   workspaceName: string;
+  workspaceId: string;
+  workspaces: { id: string; name: string }[];
   onToggle: () => void;
 }) {
   const t = useTranslations("nav");
   const ts = useTranslations("shell");
   const current = activeKey(usePathname());
+  const router = useRouter();
+  const switchTo = (id: string) =>
+    startTransition(async () => {
+      await switchWorkspace(id);
+      router.push("/");
+      router.refresh();
+    });
 
   const item = (i: NavItem) => {
     const n = i.count ? counts[i.count.key] : 0;
@@ -65,6 +78,32 @@ export function Sidebar({
           </>
         }
       >
+        {workspaces.length > 1 && (
+          <>
+            <div className="ax-menu-label">{ts("workspaces")}</div>
+            {workspaces.map((w) => (
+              <button
+                key={w.id}
+                type="button"
+                role="menuitemradio"
+                aria-checked={w.id === workspaceId}
+                className="ax-menu-item menu-btn"
+                onClick={() => w.id !== workspaceId && switchTo(w.id)}
+              >
+                <span className="ax-avatar sm sq" data-hue="1" aria-hidden>
+                  {initials(w.name)}
+                </span>
+                {w.name}
+                {w.id === workspaceId && <Check className="ax-icon" aria-hidden style={{ marginInlineStart: "auto" }} />}
+              </button>
+            ))}
+            <div className="ax-menu-sep" role="separator" />
+          </>
+        )}
+        <Link href="/settings?tab=team" role="menuitem" className="ax-menu-item">
+          <Users className="ax-icon" aria-hidden />
+          {ts("team")}
+        </Link>
         <Link href="/settings" role="menuitem" className="ax-menu-item">
           <Settings className="ax-icon" aria-hidden />
           {ts("settings")}

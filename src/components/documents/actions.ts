@@ -1,5 +1,7 @@
 "use server";
 
+import { audit } from "@/lib/audit";
+import { can } from "@/lib/roles";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -19,9 +21,16 @@ import {
 } from "@/db/schema";
 import { documentNumber, documentTotals, type DocumentKind } from "@/lib/documents";
 import { getSession } from "@/lib/session";
-import { documentErrors, documentSchema, paymentSchema, sendSchema, type DocErrors } from "./schema";
+import {
+  documentErrors,
+  documentSchema,
+  paymentSchema,
+  sendSchema,
+  type DocErrors,
+} from "./schema";
 
-export type SaveResult = { ok: true; id: string; number: string } | { ok: false; errors: DocErrors };
+export type SaveResult =
+  { ok: true; id: string; number: string } | { ok: false; errors: DocErrors };
 
 /** Next document number for the year (atomic upsert on the workspace's sequence). */
 async function nextNumber(workspaceId: string, kind: DocumentKind) {
@@ -41,7 +50,10 @@ const table = (kind: DocumentKind) => (kind === "invoice" ? invoices : quotation
  * Creates or updates a draft. Totals are recomputed here from the lines (the client's preview is never
  * trusted); lines are replaced as a whole. A new invoice from a milestone bills that milestone.
  */
-export async function saveDocument(id: string | null, input: Record<string, unknown>): Promise<SaveResult> {
+export async function saveDocument(
+  id: string | null,
+  input: Record<string, unknown>,
+): Promise<SaveResult> {
   const { workspaceId, userId } = await getSession();
   const parsed = documentSchema.safeParse(input);
   if (!parsed.success) return { ok: false, errors: documentErrors(parsed.error) };
@@ -51,13 +63,25 @@ export async function saveDocument(id: string | null, input: Record<string, unkn
   const [client] = await db
     .select({ id: clients.id })
     .from(clients)
-    .where(and(eq(clients.id, v.clientId), eq(clients.workspaceId, workspaceId), isNull(clients.archivedAt)));
+    .where(
+      and(
+        eq(clients.id, v.clientId),
+        eq(clients.workspaceId, workspaceId),
+        isNull(clients.archivedAt),
+      ),
+    );
   if (!client) return { ok: false, errors: { clientId: "client" } };
   const [project] = v.projectId
     ? await db
         .select({ id: projects.id })
         .from(projects)
-        .where(and(eq(projects.id, v.projectId), eq(projects.workspaceId, workspaceId), eq(projects.clientId, v.clientId)))
+        .where(
+          and(
+            eq(projects.id, v.projectId),
+            eq(projects.workspaceId, workspaceId),
+            eq(projects.clientId, v.clientId),
+          ),
+        )
     : [];
 
   const totals = documentTotals(
@@ -101,14 +125,22 @@ export async function saveDocument(id: string | null, input: Record<string, unkn
       await db.batch([
         v.kind === "invoice"
           ? db.insert(invoices).values({ ...base, dueDate: v.endDate!, state: "draft" })
-          : db.insert(quotations).values({ ...base, validUntil: v.endDate, status: "draft", leadId: v.leadId }),
+          : db
+              .insert(quotations)
+              .values({ ...base, validUntil: v.endDate, status: "draft", leadId: v.leadId }),
         db.insert(lineItems).values(lines(newId)),
         ...(v.kind === "invoice" && v.milestoneId
           ? [
               db
                 .update(milestones)
                 .set({ invoiceId: newId })
-                .where(and(eq(milestones.id, v.milestoneId), eq(milestones.workspaceId, workspaceId), isNull(milestones.invoiceId))),
+                .where(
+                  and(
+                    eq(milestones.id, v.milestoneId),
+                    eq(milestones.workspaceId, workspaceId),
+                    isNull(milestones.invoiceId),
+                  ),
+                ),
             ]
           : []),
         db.insert(activities).values({
@@ -127,16 +159,30 @@ export async function saveDocument(id: string | null, input: Record<string, unkn
 
     const t = table(v.kind);
     const [existing] = await db
-      .select({ number: t.number, draft: v.kind === "invoice" ? sql<boolean>`${invoices.state} = 'draft'` : sql<boolean>`${quotations.status} = 'draft'` })
+      .select({
+        number: t.number,
+        draft:
+          v.kind === "invoice"
+            ? sql<boolean>`${invoices.state} = 'draft'`
+            : sql<boolean>`${quotations.status} = 'draft'`,
+      })
       .from(t)
       .where(and(eq(t.id, docId), eq(t.workspaceId, workspaceId), isNull(t.archivedAt)));
     if (!existing) return { ok: false, errors: { form: "notFound" } };
     if (!existing.draft) return { ok: false, errors: { form: "notDraft" } };
     await db.batch([
       v.kind === "invoice"
-        ? db.update(invoices).set({ ...header, dueDate: v.endDate! }).where(eq(invoices.id, docId))
-        : db.update(quotations).set({ ...header, validUntil: v.endDate }).where(eq(quotations.id, docId)),
-      db.delete(lineItems).where(eq(v.kind === "invoice" ? lineItems.invoiceId : lineItems.quotationId, docId)),
+        ? db
+            .update(invoices)
+            .set({ ...header, dueDate: v.endDate! })
+            .where(eq(invoices.id, docId))
+        : db
+            .update(quotations)
+            .set({ ...header, validUntil: v.endDate })
+            .where(eq(quotations.id, docId)),
+      db
+        .delete(lineItems)
+        .where(eq(v.kind === "invoice" ? lineItems.invoiceId : lineItems.quotationId, docId)),
       db.insert(lineItems).values(lines(docId)),
     ]);
     revalidatePath("/[locale]", "layout");
@@ -151,7 +197,11 @@ export async function saveDocument(id: string | null, input: Record<string, unkn
  * Records that the document was sent: status Sent (an invoice already sent stays sent), `sentAt`, and a
  * timeline entry with the recipient. Delivery itself happens in the user's mail app (mailto) for now.
  */
-export async function markDocumentSent(kind: DocumentKind, docId: string, input: { recipient: string; subject: string; message: string }) {
+export async function markDocumentSent(
+  kind: DocumentKind,
+  docId: string,
+  input: { recipient: string; subject: string; message: string },
+) {
   const { workspaceId, userId } = await getSession();
   const id = z.uuid().parse(docId);
   const v = sendSchema.parse(input);
@@ -165,11 +215,17 @@ export async function markDocumentSent(kind: DocumentKind, docId: string, input:
     kind === "invoice"
       ? db
           .update(invoices)
-          .set({ state: sql`case when ${invoices.state} = 'draft' then 'sent'::invoice_state else ${invoices.state} end`, sentAt: new Date() })
+          .set({
+            state: sql`case when ${invoices.state} = 'draft' then 'sent'::invoice_state else ${invoices.state} end`,
+            sentAt: new Date(),
+          })
           .where(eq(invoices.id, id))
       : db
           .update(quotations)
-          .set({ status: sql`case when ${quotations.status} = 'draft' then 'sent'::quotation_status else ${quotations.status} end`, sentAt: new Date() })
+          .set({
+            status: sql`case when ${quotations.status} = 'draft' then 'sent'::quotation_status else ${quotations.status} end`,
+            sentAt: new Date(),
+          })
           .where(eq(quotations.id, id)),
     db.insert(activities).values({
       workspaceId,
@@ -196,11 +252,19 @@ export async function recordPayment(invoiceId: string, input: Record<string, str
   if (!parsed.success) return { ok: false as const, errors: documentErrors(parsed.error) };
   const v = parsed.data;
   const [inv] = await db
-    .select({ number: invoices.number, clientId: invoices.clientId, currency: invoices.currency, state: invoices.state })
+    .select({
+      number: invoices.number,
+      clientId: invoices.clientId,
+      currency: invoices.currency,
+      state: invoices.state,
+    })
     .from(invoices)
-    .where(and(eq(invoices.id, id), eq(invoices.workspaceId, workspaceId), isNull(invoices.archivedAt)));
+    .where(
+      and(eq(invoices.id, id), eq(invoices.workspaceId, workspaceId), isNull(invoices.archivedAt)),
+    );
   if (!inv) throw new Error("Invoice not found");
-  if (inv.state === "draft" || inv.state === "void") return { ok: false as const, errors: { form: "notIssued" } };
+  if (inv.state === "draft" || inv.state === "void")
+    return { ok: false as const, errors: { form: "notIssued" } };
   const inserted = await db
     .insert(payments)
     .values({
@@ -228,13 +292,16 @@ export async function recordPayment(invoiceId: string, input: Record<string, str
       payload: { number: inv.number, amountMinor: v.amount, currency: inv.currency },
     });
   revalidatePath("/[locale]", "layout");
-  const [after] = await db.select({ balance: invoiceBalances.balanceMinor }).from(invoiceBalances).where(eq(invoiceBalances.invoiceId, id));
+  const [after] = await db
+    .select({ balance: invoiceBalances.balanceMinor })
+    .from(invoiceBalances)
+    .where(eq(invoiceBalances.invoiceId, id));
   return { ok: true as const, number: inv.number, balanceMinor: after?.balance ?? 0 };
 }
 
 /** Void (or Undo it): returns the previous state. */
 export async function setInvoiceState(invoiceId: string, state: string) {
-  const { workspaceId, userId } = await getSession();
+  const { workspaceId, userId, role } = await getSession();
   const id = z.uuid().parse(invoiceId);
   const next = z.enum(invoiceState.enumValues).parse(state);
   const [inv] = await db
@@ -242,8 +309,22 @@ export async function setInvoiceState(invoiceId: string, state: string) {
     .from(invoices)
     .where(and(eq(invoices.id, id), eq(invoices.workspaceId, workspaceId)));
   if (!inv) throw new Error("Invoice not found");
+  // Voiding (and undoing a void) is for owners and admins.
+  if ((next === "void" || inv.state === "void") && !can(role, "admin"))
+    throw new Error("Forbidden");
+  if (next === "void")
+    await audit("invoice.voided", {
+      workspaceId,
+      actorId: userId,
+      entityType: "invoice",
+      entityId: id,
+      meta: { number: inv.number },
+    });
   await db.batch([
-    db.update(invoices).set({ state: next, voidedAt: next === "void" ? new Date() : null }).where(eq(invoices.id, id)),
+    db
+      .update(invoices)
+      .set({ state: next, voidedAt: next === "void" ? new Date() : null })
+      .where(eq(invoices.id, id)),
     ...(next === "void"
       ? [
           db.insert(activities).values({
@@ -302,14 +383,21 @@ export async function convertQuotation(quotationId: string) {
   const [q] = await db
     .select()
     .from(quotations)
-    .where(and(eq(quotations.id, id), eq(quotations.workspaceId, workspaceId), isNull(quotations.archivedAt)));
+    .where(
+      and(
+        eq(quotations.id, id),
+        eq(quotations.workspaceId, workspaceId),
+        isNull(quotations.archivedAt),
+      ),
+    );
   if (!q) throw new Error("Quotation not found");
   if (q.convertedInvoiceId) return { id: q.convertedInvoiceId, number: null };
   const lines = await db.select().from(lineItems).where(eq(lineItems.quotationId, id));
   const newId = crypto.randomUUID();
   const number = await nextNumber(workspaceId, "invoice");
   const today = new Date();
-  const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const iso = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const due = new Date(today);
   due.setDate(due.getDate() + 30);
   await db.batch([

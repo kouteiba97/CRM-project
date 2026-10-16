@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { cache } from "react";
 import { asc, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
@@ -36,14 +37,33 @@ export const getSession = cache(async (): Promise<Session> => {
   const authed = await auth();
   const id = authed?.user?.id;
   if (!id) redirect(`/${await getLocale()}/login`);
-  const rows = await db
-    .select({ user: users, workspace: workspaces, role: memberships.role })
-    .from(users)
-    .innerJoin(memberships, eq(memberships.userId, users.id))
-    .innerJoin(workspaces, eq(workspaces.id, memberships.workspaceId))
-    .where(eq(users.id, id))
-    .orderBy(asc(memberships.createdAt));
-  if (!rows.length) redirect(await endSessionUrl());
+  const load = () =>
+    db
+      .select({ user: users, workspace: workspaces, role: memberships.role })
+      .from(users)
+      .innerJoin(memberships, eq(memberships.userId, users.id))
+      .innerJoin(workspaces, eq(workspaces.id, memberships.workspaceId))
+      .where(eq(users.id, id))
+      .orderBy(asc(memberships.createdAt));
+  let rows = await load();
+  if (!rows.length) {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    if (!user || user.sessionVersion !== (authed?.sessionVersion ?? 0)) redirect(await endSessionUrl());
+    // Removed from (or left) every workspace: start again in an empty workspace of their own.
+    const workspaceId = randomUUID();
+    await db.batch([
+      db
+        .insert(workspaces)
+        .values({
+          id: workspaceId,
+          name: user.name,
+          defaultLocale: user.locale ?? "fr",
+          defaultDocumentLanguage: user.locale ?? "fr",
+        }),
+      db.insert(memberships).values({ workspaceId, userId: user.id, role: "owner" }),
+    ]);
+    rows = await load();
+  }
   const user = rows[0]!.user;
   // Password changed (or account re-secured) since this session was signed: sign it out.
   if (user.sessionVersion !== (authed?.sessionVersion ?? 0)) redirect(await endSessionUrl());

@@ -8,15 +8,16 @@ import { DeleteAccountCard, EmailForm, PasswordForm, SessionsCard } from "./Acco
 import { AuditLog } from "./AuditLog";
 import { DataPanel } from "./DataPanel";
 import { GeneralSettings, ProfileForm, WorkspaceForm } from "./SettingsForms";
+import { TeamPanel } from "./TeamPanel";
 
-const TABS = ["general", "account", "security", "workspace", "data"] as const;
+const TABS = ["general", "account", "security", "workspace", "team", "data"] as const;
 type Tab = (typeof TABS)[number];
 type SP = Record<string, string | string[] | undefined>;
 
 /**
  * Settings, one tab per `?tab=`: General (language, theme, sidebar) · Account (name, email,
  * password, delete) · Security (sessions, activity log) · Workspace (details on documents) ·
- * Data (exports).
+ * Team (members, roles, invitations) · Data (exports).
  */
 export async function SettingsPage({ searchParams }: { searchParams: SP }) {
   const session = await getSession();
@@ -83,6 +84,7 @@ export async function SettingsPage({ searchParams }: { searchParams: SP }) {
             }}
           />
         )}
+        {tab === "team" && <TeamPanel session={session} />}
         {tab === "data" && <DataPanel canExportWorkspace={can(session.role, "admin")} />}
       </section>
     </>

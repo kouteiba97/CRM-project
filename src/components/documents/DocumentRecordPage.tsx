@@ -14,6 +14,7 @@ import {
 } from "@/db/queries/documents";
 import type { DocumentKind } from "@/lib/documents";
 import { formatter, type Locale } from "@/lib/format";
+import { can } from "@/lib/roles";
 import { getSession } from "@/lib/session";
 import { Timeline } from "@/components/activity/Timeline";
 import { RecordCrumb } from "@/components/shell/Crumbs";
@@ -138,6 +139,7 @@ export async function DocumentRecordPage({ kind, id }: { kind: DocumentKind; id:
             currency={rec.doc.currency}
             locale={ui}
             convertedInvoiceId={quotation?.doc.convertedInvoiceId ?? null}
+            canVoid={can(session.role, "admin")}
             sendSubject={tsend("defaultSubject", {
               doc: docTitle,
               number: rec.doc.number,

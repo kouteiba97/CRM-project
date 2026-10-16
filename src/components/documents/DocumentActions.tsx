@@ -42,6 +42,8 @@ export type DocActionsProps = {
   convertedInvoiceId: string | null;
   sendSubject: string;
   sendMessage: string;
+  /** Owners and admins only. */
+  canVoid: boolean;
 };
 
 /**
@@ -195,7 +197,7 @@ export function DocumentActions(p: DocActionsProps) {
           {isDraft ? t("send") : t("sendAgain")}
         </button>
       )}
-      {p.kind === "invoice" && p.state !== "void" && (
+      {p.kind === "invoice" && p.state !== "void" && (p.canVoid || p.status === "overdue") && (
         <Menu
           triggerClassName="ax-btn ax-btn-tertiary ax-btn-sm ax-btn-icon"
           triggerLabel={tc("more")}
@@ -213,22 +215,24 @@ export function DocumentActions(p: DocActionsProps) {
               {t("sendReminder")}
             </button>
           )}
-          <button
-            type="button"
-            role="menuitem"
-            tabIndex={-1}
-            className="ax-menu-item menu-btn is-danger"
-            onClick={() =>
-              run(
-                () => setInvoiceState(p.id, "void"),
-                t("voided", { number: p.number }),
-                (from) => setInvoiceState(p.id, from),
-              )
-            }
-          >
-            <Ban className="ax-icon" aria-hidden />
-            {t("void")}
-          </button>
+          {p.canVoid && (
+            <button
+              type="button"
+              role="menuitem"
+              tabIndex={-1}
+              className="ax-menu-item menu-btn is-danger"
+              onClick={() =>
+                run(
+                  () => setInvoiceState(p.id, "void"),
+                  t("voided", { number: p.number }),
+                  (from) => setInvoiceState(p.id, from),
+                )
+              }
+            >
+              <Ban className="ax-icon" aria-hidden />
+              {t("void")}
+            </button>
+          )}
         </Menu>
       )}
       {modal === "send" && <SendModal {...p} onClose={() => setModal(null)} />}

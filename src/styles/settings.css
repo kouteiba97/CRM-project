@@ -120,3 +120,54 @@
   overflow: visible;
   white-space: normal;
 }
+
+/* ── Team ────────────────────────────────────────────────────────────────────────── */
+.team-invite-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 180px);
+  gap: var(--space-3);
+}
+
+.team-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.team-row:first-child {
+  border-top: 0;
+}
+
+.team-who {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.team-since {
+  font-size: 12px;
+}
+
+.team-role {
+  width: auto;
+  height: var(--control-sm);
+}
+
+@media (width <= 640px) {
+  .team-invite-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

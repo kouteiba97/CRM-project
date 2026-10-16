@@ -22,12 +22,16 @@ export function AppShell({
   children,
   counts,
   workspaceName,
+  workspaceId,
+  workspaces,
   userName,
   initialSidebar,
 }: {
   children: ReactNode;
   counts: SidebarCounts;
   workspaceName: string;
+  workspaceId: string;
+  workspaces: { id: string; name: string }[];
   userName: string;
   initialSidebar: SidebarState;
 }) {
@@ -105,7 +109,13 @@ export function AppShell({
           {t("skipToContent")}
         </a>
         <div className="app-sidebar">
-          <Sidebar counts={counts} workspaceName={workspaceName} onToggle={toggleSidebar} />
+          <Sidebar
+            counts={counts}
+            workspaceName={workspaceName}
+            workspaceId={workspaceId}
+            workspaces={workspaces}
+            onToggle={toggleSidebar}
+          />
         </div>
         <button
           type="button"

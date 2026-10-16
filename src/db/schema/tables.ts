@@ -464,3 +464,23 @@ export const invites = pgTable(
   },
   (t) => [index("invites_ws_idx").on(t.workspaceId, t.createdAt)],
 );
+
+/** In-app notifications (the bell): one row per recipient. */
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: id(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    payload: jsonb("payload").$type<Record<string, string | number>>().notNull().default({}),
+    href: text("href"),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("notifications_user_idx").on(t.userId, t.workspaceId, t.createdAt)],
+);

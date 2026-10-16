@@ -23,6 +23,8 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[loc
     <AppShell
       counts={counts}
       workspaceName={session.workspace.name}
+      workspaceId={session.workspaceId}
+      workspaces={session.workspaces}
       userName={session.user.name}
       initialSidebar={sidebar}
     >

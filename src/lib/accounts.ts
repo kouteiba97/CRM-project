@@ -169,3 +169,27 @@ export async function confirmEmailChange(token: string) {
     .where(eq(users.id, row.userId));
   return { ok: true as const, user: before, oldEmail: before.email, newEmail: next };
 }
+
+/** An invited person's account: verified (they clicked the emailed invite), no own workspace. */
+export async function createInvitedUser(input: {
+  name: string;
+  email: string;
+  passwordHash: string;
+  locale: Locale;
+  workspaceId: string;
+  role: "owner" | "admin" | "member";
+}) {
+  const userId = randomUUID();
+  await db.batch([
+    db.insert(users).values({
+      id: userId,
+      email: input.email,
+      name: input.name,
+      passwordHash: input.passwordHash,
+      locale: input.locale,
+      emailVerifiedAt: new Date(),
+    }),
+    db.insert(memberships).values({ workspaceId: input.workspaceId, userId, role: input.role }),
+  ]);
+  return userId;
+}

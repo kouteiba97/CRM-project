@@ -23,12 +23,12 @@ export async function lastLink(request: APIRequestContext, to: string, subject: 
   return new URL(link).pathname + new URL(link).search;
 }
 
-export async function signUp(page: Page, email: string, password: string, name = "Lina Test") {
+export async function signUp(page: Page, email: string, password: string, name = "Lina Test", company = "Lina Studio") {
   await page.goto("/en/signup");
   await page.getByLabel("Your name").fill(name);
   await page.getByLabel("Email").fill(email);
   await page.locator("#signup-password").fill(password);
-  await page.getByLabel("Company name").fill("Lina Studio");
+  await page.getByLabel("Company name").fill(company);
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/en$/);
 }
