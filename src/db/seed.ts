@@ -24,6 +24,14 @@ const at = (n: number, hh: number, mm = 0) => {
 const eur = (v: number) => Math.round(v * 100);
 
 async function main() {
+  // The seed wipes everything: refuse if the database holds any real account (anything but the
+  // test addresses the app and its tests create), whatever NODE_ENV says.
+  const real = await db.execute<{ n: number }>(sql`
+    select count(*)::int as n from users
+    where email not like '%@apex.test' and email not like '%@example.test'`);
+  if (Number(real.rows[0]?.n ?? 0) > 0 && process.env.SEED_FORCE !== "1") {
+    throw new Error("Refusing to seed: this database has real accounts (set SEED_FORCE=1 to wipe it anyway).");
+  }
   await db.execute(sql`truncate table
     activities, payments, line_items, invoices, quotations, follow_ups, tasks, milestones,
     projects, leads, contacts, clients, document_sequences, memberships, users, workspaces, rate_limits

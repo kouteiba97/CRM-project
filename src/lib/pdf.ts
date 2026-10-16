@@ -55,9 +55,13 @@ export async function renderPdf(url: string): Promise<Buffer> {
   const page = await (await getBrowser()).newPage();
   try {
     await page.emulateMediaType("print");
-    const res = await page.goto(url, { waitUntil: "networkidle0", timeout: 30_000 });
+    // "load" (not network-idle): security software on some machines keeps a long-poll open,
+    // which would make "idle" never happen. The page has no late data; fonts are awaited below.
+    const res = await page.goto(url, { waitUntil: "load", timeout: 30_000 });
     if (!res?.ok()) throw new Error(`PDF source returned ${res?.status()}`);
-    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
     const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
     return Buffer.from(pdf);
   } finally {

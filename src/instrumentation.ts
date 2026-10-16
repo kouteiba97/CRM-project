@@ -6,7 +6,11 @@ import type { Instrumentation } from "next";
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs" || process.env.NODE_ENV !== "production") return;
-  const required = ["DATABASE_URL", "AUTH_SECRET", "APP_URL"];
+  // `next build` also loads this file; the settings are only required to serve requests.
+  if (process.env.NEXT_PHASE === "phase-production-build") return;
+  // Preview deployments have changing addresses: APP_URL is only required for the real site.
+  const live = process.env.VERCEL_ENV ? process.env.VERCEL_ENV === "production" : true;
+  const required = ["DATABASE_URL", "AUTH_SECRET", ...(live ? ["APP_URL"] : [])];
   const missing = required.filter((k) => !process.env[k]);
   if (missing.length) throw new Error(`Missing environment variables: ${missing.join(", ")}. See DEPLOY.md.`);
   if ((process.env.AUTH_SECRET ?? "").length < 32) throw new Error("AUTH_SECRET must be at least 32 characters.");

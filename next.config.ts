@@ -44,6 +44,15 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Headless Chromium for PDFs ships its own binary; bundling it would break it.
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  // …and its compressed Chromium must ship with every route that makes PDFs: the download
+  // route, the daily job, and the invoice/quotation pages (whose Send action attaches one).
+  outputFileTracingIncludes: {
+    "/api/documents/**": ["./node_modules/@sparticuz/chromium/bin/**/*"],
+    "/api/cron/**": ["./node_modules/@sparticuz/chromium/bin/**/*"],
+    "/[locale]/invoices/**": ["./node_modules/@sparticuz/chromium/bin/**/*"],
+    "/[locale]/quotations/**": ["./node_modules/@sparticuz/chromium/bin/**/*"],
+    "/[locale]": ["./node_modules/@sparticuz/chromium/bin/**/*"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
