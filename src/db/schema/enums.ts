@@ -46,3 +46,4 @@ export const themePref = pgEnum("theme_pref", ["light", "dark", "system"]);
 export const memberRole = pgEnum("member_role", ["owner", "admin", "member"]);
 export const sequenceKind = pgEnum("sequence_kind", ["quotation", "invoice", "project"]);
 export const authTokenKind = pgEnum("auth_token_kind", ["reset_password", "verify_email", "change_email"]);
+export const recurrence = pgEnum("recurrence", ["monthly", "quarterly", "yearly"]);

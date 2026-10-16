@@ -4,6 +4,7 @@ import { redirect } from "@/i18n/navigation";
 import { DocumentEditorPage } from "@/components/documents/DocumentEditorPage";
 import { DocumentRecordPage, loadDocumentForMeta } from "@/components/documents/DocumentRecordPage";
 import { DocumentsPage } from "@/components/documents/DocumentsPage";
+import { RecurringPage } from "@/components/documents/RecurringPage";
 
 type Props = {
   params: Promise<{ locale: string; slug?: string[] }>;
@@ -15,7 +16,7 @@ const NAV = "invoices";
 export async function generateMetadata({ params }: Props) {
   const { locale, slug } = await params;
   const t = await getTranslations({ locale, namespace: "nav" });
-  if (slug?.[0] && slug[0] !== "new") {
+  if (slug?.[0] && slug[0] !== "new" && slug[0] !== "recurring") {
     const doc = await loadDocumentForMeta("invoice", slug[0]);
     if (doc) return { title: `${doc.number} · ${t(NAV)}` };
   }
@@ -37,6 +38,7 @@ export default async function Page({ params, searchParams }: Props) {
     }
     return <DocumentsPage kind="invoice" searchParams={sp} />;
   }
+  if (slug.length === 1 && slug[0] === "recurring") return <RecurringPage />;
   if (slug.length === 1 && slug[0] === "new") return <DocumentEditorPage kind="invoice" id={null} sp={sp} locale={locale} />;
   if (slug.length === 1 && slug[0]) return <DocumentRecordPage kind="invoice" id={slug[0]} />;
   if (slug.length === 2 && slug[0] && slug[1] === "edit") return <DocumentEditorPage kind="invoice" id={slug[0]} sp={sp} locale={locale} />;

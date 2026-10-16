@@ -128,7 +128,8 @@
     "milestonesEmpty": "No upcoming milestones.",
     "stage": "Stage",
     "count": "Count",
-    "value": "Value"
+    "value": "Value",
+    "reminderEmailed": "Reminder emailed for {number}"
   },
   "activity": {
     "lead_created": "New lead — {title}",
@@ -982,7 +983,8 @@
       "sendAgain": "Send again",
       "sendReminder": "Send reminder",
       "voided": "{number} voided",
-      "void": "Void invoice"
+      "void": "Void invoice",
+      "reminderEmailed": "Reminder emailed for {number}"
     },
     "send": {
       "title": "Send {number}",
@@ -996,7 +998,12 @@
       "mailAppNote": "Your mail app opens with this message; attach the PDF from Download PDF.",
       "defaultSubject": "{doc} {number} from {from}",
       "defaultMessageInvoice": "Hello {client},\n\nPlease find invoice {number} for {amount}, due on {date}.\n\nBest regards,\n{from}",
-      "defaultMessageQuotation": "Hello {client},\n\nPlease find quotation {number} for {amount}, valid until {date}.\n\nBest regards,\n{from}"
+      "defaultMessageQuotation": "Hello {client},\n\nPlease find quotation {number} for {amount}, valid until {date}.\n\nBest regards,\n{from}",
+      "attachNote": "Sent by email from Apex CRM with the PDF attached. Replies come to your email address.",
+      "pdfFailed": "The PDF could not be generated.",
+      "mailFailed": "The email could not be sent (check the email settings).",
+      "emailed": "{number} emailed to {to}",
+      "useMailApp": "Open in my email app instead"
     },
     "pay": {
       "title": "Record payment",
@@ -1041,7 +1048,49 @@
       "rem_sent": "Sent",
       "rem_due": "Due",
       "rem_upcoming": "Upcoming",
-      "remindersNote": "Each reminder sent is logged on the timeline."
+      "remindersNote": "Each reminder sent is logged on the timeline.",
+      "rem_skipped": "Skipped"
+    },
+    "recurring": {
+      "repeat": "Repeat",
+      "title": "Repeat {number}",
+      "create": "Create schedule",
+      "help": "A copy of this invoice (same client, lines and terms) is created automatically on each date.",
+      "interval": "Repeat",
+      "every_monthly": "Every month",
+      "every_quarterly": "Every 3 months",
+      "every_yearly": "Every year",
+      "firstDate": "First new invoice on",
+      "endDate": "Stop after",
+      "endHelp": "Leave empty to keep going until you stop it.",
+      "optional": "Optional",
+      "invalidDate": "Choose a valid date.",
+      "endBeforeStart": "The end date must be after the first date.",
+      "autoSend": "Email it to the client automatically",
+      "autoSendOn": "Each new invoice is emailed to the client with its PDF.",
+      "autoSendOff": "Each new invoice is created as a draft for you to check and send.",
+      "created": "Repeating from {date}",
+      "pageTitle": "Recurring invoices",
+      "back": "Back to invoices",
+      "emptyTitle": "No recurring invoices",
+      "emptyBody": "Open an invoice and choose Repeat to bill a client every month, quarter or year.",
+      "col_client": "Client",
+      "col_copy": "Copies",
+      "col_every": "Every",
+      "col_next": "Next invoice",
+      "col_send": "Sending",
+      "col_runs": "Created",
+      "col_actions": "Actions",
+      "until": "until {date}",
+      "pausedBadge": "Paused",
+      "sendAuto": "Emailed automatically",
+      "sendDraft": "Draft to review",
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete schedule",
+      "paused": "Schedule paused",
+      "resumed": "Schedule resumed",
+      "deleted": "Schedule deleted"
     }
   },
   "followUps": {
@@ -1458,6 +1507,8 @@
     "invite_subject": "{inviter} invited you to {workspace} on Apex CRM",
     "invite_body": "{inviter} invited you to join the {workspace} workspace on Apex CRM, to work together on clients, projects and invoices.",
     "invite_expiry": "The invitation expires in 7 days. If you didn't expect it, you can ignore this email.",
-    "invite_cta": "Accept the invitation"
+    "invite_cta": "Accept the invitation",
+    "reminder_subject": "Reminder: invoice {number} from {company}",
+    "reminder_body": "Hello {client},\n\nThis is a friendly reminder that invoice {number} ({amount} still due) was due on {date}. You'll find it attached.\n\nIf you have already paid, thank you, and please ignore this message.\n\nBest regards,\n{company}"
   }
 }

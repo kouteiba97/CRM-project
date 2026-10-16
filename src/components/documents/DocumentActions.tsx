@@ -23,7 +23,8 @@ import { useToast } from "@/components/shell/Toasts";
 import { Modal } from "@/components/ui/Modal";
 import type { Locale } from "@/lib/format";
 import type { DocumentKind } from "@/lib/documents";
-import { convertQuotation, markDocumentSent, setInvoiceState, setQuotationStatus } from "./actions";
+import { RepeatButton } from "./RecurringParts";
+import { convertQuotation, emailDocument, markDocumentSent, setInvoiceState, setQuotationStatus } from "./actions";
 import { PaymentModal } from "./PaymentModal";
 
 export type DocActionsProps = {
@@ -44,6 +45,7 @@ export type DocActionsProps = {
   sendMessage: string;
   /** Owners and admins only. */
   canVoid: boolean;
+  issueDate: string;
 };
 
 /**
@@ -97,8 +99,8 @@ export function DocumentActions(p: DocActionsProps) {
   const reminder = () =>
     start(async () => {
       try {
-        await sendInvoiceReminder(p.id);
-        toast({ tone: "success", title: t("reminderLogged", { number: p.number }) });
+        const res = await sendInvoiceReminder(p.id);
+        toast({ tone: "success", title: t(res.emailed ? "reminderEmailed" : "reminderLogged", { number: p.number }) });
       } catch {
         toast({ tone: "danger", title: t("failed") });
       }
@@ -112,14 +114,11 @@ export function DocumentActions(p: DocActionsProps) {
           {t("edit")}
         </Link>
       )}
-      <button
-        type="button"
-        className="ax-btn ax-btn-secondary ax-btn-sm"
-        onClick={() => window.print()}
-      >
+      {/* A real PDF made on the server (same layout as the preview), downloaded as a file. */}
+      <a className="ax-btn ax-btn-secondary ax-btn-sm" href={`/api/documents/${p.kind}/${p.id}/pdf`} download>
         <Download className="ax-icon" aria-hidden />
         {t("download")}
-      </button>
+      </a>
       {p.kind === "quotation" && p.status === "sent" && (
         <>
           <button
@@ -197,6 +196,9 @@ export function DocumentActions(p: DocActionsProps) {
           {isDraft ? t("send") : t("sendAgain")}
         </button>
       )}
+      {p.kind === "invoice" && p.state !== "void" && (
+        <RepeatButton invoiceId={p.id} issueDate={p.issueDate} number={p.number} />
+      )}
       {p.kind === "invoice" && p.state !== "void" && (p.canVoid || p.status === "overdue") && (
         <Menu
           triggerClassName="ax-btn ax-btn-tertiary ax-btn-sm ax-btn-icon"
@@ -262,20 +264,32 @@ function SendModal(p: DocActionsProps & { onClose: () => void }) {
   const [message, setMessage] = useState(p.sendMessage);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [fallback, setFallback] = useState(false);
   const submit = () => {
     if (!/^\S+@\S+\.\S+$/.test(to.trim())) return setError(t("recipientError"));
     start(async () => {
       try {
-        await markDocumentSent(p.kind, p.id, { recipient: to.trim(), subject, message });
-        // Delivery: hand the message to the user's mail app (no outgoing mail service is connected yet).
-        window.location.href = `mailto:${encodeURIComponent(to.trim())}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-        toast({ tone: "success", title: t("sent", { number: p.number, to: to.trim() }) });
+        const res = await emailDocument(p.kind, p.id, { recipient: to.trim(), subject, message });
+        if (!res.ok) {
+          setError(t(res.error === "pdf" ? "pdfFailed" : "mailFailed"));
+          setFallback(true);
+          return;
+        }
+        toast({ tone: "success", title: t("emailed", { number: p.number, to: to.trim() }) });
         p.onClose();
       } catch {
         setError(t("failed"));
       }
     });
   };
+  /** If the email service fails: hand the message to the user's own mail app instead. */
+  const openMailApp = () =>
+    start(async () => {
+      await markDocumentSent(p.kind, p.id, { recipient: to.trim(), subject, message });
+      window.location.href = `mailto:${encodeURIComponent(to.trim())}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+      toast({ tone: "success", title: t("sent", { number: p.number, to: to.trim() }) });
+      p.onClose();
+    });
   return (
     <Modal
       title={t("title", { number: p.number })}
@@ -329,13 +343,19 @@ function SendModal(p: DocActionsProps & { onClose: () => void }) {
       </div>
       <p className="ax-banner info">
         <Mail className="ax-icon" aria-hidden />
-        {t("mailAppNote")}
+        {t("attachNote")}
       </p>
       {error && (
         <span className="ax-error" id="send-err" role="alert">
           <CircleAlert className="ax-icon" aria-hidden />
           {error}
         </span>
+      )}
+      {fallback && (
+        <button type="button" className="ax-btn ax-btn-secondary ax-btn-sm" onClick={openMailApp} disabled={pending}>
+          <Mail className="ax-icon" aria-hidden />
+          {t("useMailApp")}
+        </button>
       )}
     </Modal>
   );

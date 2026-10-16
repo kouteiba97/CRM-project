@@ -42,6 +42,8 @@ const SECURITY_HEADERS = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Headless Chromium for PDFs ships its own binary; bundling it would break it.
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },

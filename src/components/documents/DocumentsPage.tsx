@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown, FileText, Plus, Receipt } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, FileText, Plus, Receipt, Repeat } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
@@ -40,6 +40,7 @@ export async function DocumentsPage({
 }) {
   const session = await getSession();
   const t = await getTranslations("documents");
+  const tr = await getTranslations("documents.recurring");
   const tn = await getTranslations("nav");
   const ts = await getTranslations("status");
   const filters = parseDocFilters(kind, searchParams);
@@ -58,6 +59,12 @@ export async function DocumentsPage({
       <header className="pagehead">
         <h1 className="t-page-title">{title}</h1>
         <div className="actions">
+          {kind === "invoice" && (
+            <Link className="ax-btn ax-btn-secondary ax-btn-sm" href="/invoices/recurring">
+              <Repeat className="ax-icon" aria-hidden />
+              {tr("pageTitle")}
+            </Link>
+          )}
           <Link className="ax-btn ax-btn-primary ax-btn-sm" href={`${base(kind)}/new`}>
             <Plus className="ax-icon" aria-hidden />
             {t(kind === "invoice" ? "newInvoice" : "newQuotation")}

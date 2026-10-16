@@ -128,7 +128,7 @@ test("invoice lifecycle: send, record a partial payment, pay the rest, void with
   await expect(send.getByText(/INV-\d{4}-\d{4}\.pdf/)).toBeVisible();
   await expectAccessible(page);
   await send.getByRole("button", { name: "Send" }).click();
-  await expect(page.locator(".toasts").getByText(/marked as sent to/)).toBeVisible();
+  await expect(page.locator(".toasts").getByText(/emailed to/)).toBeVisible();
   await page.goto(recordUrl);
   await expect(page.locator(".doc-head .ax-badge")).toHaveText("Sent");
   await expect(page.getByRole("link", { name: "Edit" })).toHaveCount(0);
@@ -173,7 +173,7 @@ test("quotation: accept with Undo, convert to an invoice, Arabic document mirror
 
   await page.getByRole("button", { name: "Send", exact: true }).click();
   await page.getByRole("dialog", { name: /^Send Q-/ }).getByRole("button", { name: "Send" }).click();
-  await expect(page.locator(".toasts").getByText(/marked as sent to/)).toBeVisible();
+  await expect(page.locator(".toasts").getByText(/emailed to/)).toBeVisible();
   await page.goto(quoteUrl);
   await page.getByRole("button", { name: "Accepted" }).click();
   await expect(page.locator(".doc-head .ax-badge")).toHaveText("Accepted");

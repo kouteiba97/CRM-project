@@ -16,7 +16,7 @@ export function ReminderButton({ invoiceId, number }: { invoiceId: string; numbe
     start(async () => {
       try {
         const res = await sendInvoiceReminder(invoiceId);
-        toast({ tone: "success", title: t("reminderLogged", { number: res.number }) });
+        toast({ tone: "success", title: t(res.emailed ? "reminderEmailed" : "reminderLogged", { number: res.number }) });
       } catch {
         toast({ tone: "danger", title: t("reminderFailed"), action: { label: tc("retry"), run: send } });
       }

@@ -15,6 +15,8 @@ export default auth((req) => {
   const { pathname, search } = req.nextUrl;
   const locale = localeOf(pathname);
   if (locale) {
+    // The PDF renderer's view of one document: guarded by a signature, not a session.
+    if (pathname.startsWith(`/${locale}/print/`)) return intl(req);
     const page = authPage(pathname);
     if (!req.auth && !page) {
       const url = new URL(`/${locale}/login`, req.url);

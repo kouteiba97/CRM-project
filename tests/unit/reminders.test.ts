@@ -24,4 +24,9 @@ describe("reminderSchedule (due, +3, +7, +14)", () => {
     const steps = reminderSchedule("2026-10-01", [at("2026-09-28")], at("2026-10-02"));
     expect(steps[0]!.state).toBe("due");
   });
+
+  it("a late reminder catches up: older steps are skipped, not owed", () => {
+    const steps = reminderSchedule("2026-10-01", [at("2026-10-09")], at("2026-10-09"));
+    expect(steps.map((s) => s.state)).toEqual(["skipped", "skipped", "sent", "upcoming"]);
+  });
 });

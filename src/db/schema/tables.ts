@@ -491,3 +491,29 @@ export const notifications = pgTable(
   },
   (t) => [index("notifications_user_idx").on(t.userId, t.workspaceId, t.createdAt)],
 );
+
+/**
+ * Repeating invoices: on `nextDate`, the daily run copies the source invoice (lines, currency,
+ * language, notes) into a new invoice, optionally emails it, and moves `nextDate` forward.
+ */
+export const recurringInvoices = pgTable(
+  "recurring_invoices",
+  {
+    ...scoped(),
+    sourceInvoiceId: uuid("source_invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "cascade" }),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    interval: e.recurrence("interval").notNull().default("monthly"),
+    nextDate: date("next_date").notNull(),
+    endDate: date("end_date"),
+    autoSend: boolean("auto_send").notNull().default(false),
+    active: boolean("active").notNull().default(true),
+    runs: integer("runs").notNull().default(0),
+    lastInvoiceId: uuid("last_invoice_id"),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+  },
+  (t) => [index("recurring_due_idx").on(t.active, t.nextDate)],
+);

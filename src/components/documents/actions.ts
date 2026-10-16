@@ -1,5 +1,10 @@
 "use server";
 
+import { nextNumber } from "@/lib/doc-numbers";
+import { documentPdf } from "@/lib/document-pdf";
+import { sendMail } from "@/lib/mail/send";
+import { documentMail } from "@/lib/mail/templates";
+import { loadDocView } from "./doc-view-data";
 import { audit } from "@/lib/audit";
 import { can } from "@/lib/roles";
 import { and, eq, isNull, sql } from "drizzle-orm";
@@ -33,17 +38,6 @@ export type SaveResult =
   { ok: true; id: string; number: string } | { ok: false; errors: DocErrors };
 
 /** Next document number for the year (atomic upsert on the workspace's sequence). */
-async function nextNumber(workspaceId: string, kind: DocumentKind) {
-  const year = new Date().getFullYear();
-  const res = await db.execute<{ value: number }>(sql`
-    insert into ${documentSequences} (workspace_id, kind, year, next_value)
-    values (${workspaceId}, ${kind}, ${year}, 2)
-    on conflict (workspace_id, kind, year)
-    do update set next_value = ${documentSequences}.next_value + 1
-    returning next_value - 1 as value`);
-  return documentNumber(kind, year, Number(res.rows[0]!.value));
-}
-
 const table = (kind: DocumentKind) => (kind === "invoice" ? invoices : quotations);
 
 /**
@@ -454,4 +448,54 @@ export async function convertQuotation(quotationId: string) {
   ]);
   revalidatePath("/[locale]", "layout");
   return { id: newId, number };
+}
+
+export type EmailResult = { ok: true } | { ok: false; error: "pdf" | "mail" };
+
+/**
+ * Sends the document by email with its PDF attached (from the company's name, replies to the
+ * sender), then marks it sent like before. If the PDF or the email fails, nothing is marked.
+ */
+export async function emailDocument(
+  kind: DocumentKind,
+  docId: string,
+  input: { recipient: string; subject: string; message: string },
+): Promise<EmailResult> {
+  const session = await getSession();
+  const id = z.uuid().parse(docId);
+  const v = sendSchema.parse(input);
+  const view = await loadDocView(session.workspaceId, kind, id);
+  if (!view) throw new Error("Document not found");
+  let pdf: { content: Buffer; filename: string };
+  try {
+    pdf = await documentPdf(session.workspaceId, kind, id, view.language, view.data.number);
+  } catch (error) {
+    console.error("[emailDocument] pdf", error);
+    return { ok: false, error: "pdf" };
+  }
+  try {
+    await sendMail(
+      documentMail({
+        to: v.recipient,
+        subject: v.subject,
+        message: v.message,
+        locale: view.language,
+        company: session.workspace.name,
+        replyTo: session.user.email,
+        attachment: pdf,
+      }),
+    );
+  } catch (error) {
+    console.error("[emailDocument] mail", error);
+    return { ok: false, error: "mail" };
+  }
+  await markDocumentSent(kind, id, v);
+  await audit("invoice.emailed", {
+    workspaceId: session.workspaceId,
+    actorId: session.userId,
+    entityType: kind,
+    entityId: id,
+    meta: { number: view.data.number, to: v.recipient },
+  });
+  return { ok: true };
 }

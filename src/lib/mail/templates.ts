@@ -122,3 +122,33 @@ export async function inviteMail(
     }),
   };
 }
+
+/**
+ * An invoice or quotation sent to a client: the sender's own subject and message (plain text,
+ * escaped, line breaks kept), from the company's name, with the PDF attached.
+ */
+export function documentMail(opts: {
+  to: string;
+  subject: string;
+  message: string;
+  locale: Locale;
+  company: string;
+  replyTo: string;
+  attachment: { filename: string; content: Buffer };
+}): Mail {
+  const dir = dirOf(opts.locale);
+  const body = esc(opts.message).replace(/\n/g, "<br>");
+  return {
+    to: opts.to,
+    subject: opts.subject,
+    fromName: opts.company,
+    replyTo: opts.replyTo,
+    text: opts.message,
+    html: `<!doctype html><html lang="${opts.locale}" dir="${dir}"><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:24px 12px;font-family:system-ui,-apple-system,'Segoe UI',Tahoma,Arial,sans-serif;color:${C.text};font-size:14px;line-height:22px">
+<div dir="${dir}" style="max-width:560px">${body}</div>
+<p style="margin-top:24px;font-size:12px;color:${C.muted}">📎 <span dir="ltr">${esc(opts.attachment.filename)}</span></p>
+</body></html>`,
+    attachments: [{ ...opts.attachment, contentType: "application/pdf" }],
+  };
+}

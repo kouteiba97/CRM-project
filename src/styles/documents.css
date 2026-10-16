@@ -505,10 +505,18 @@
     visibility: visible;
   }
 
+  html,
+  body {
+    background: var(--doc-paper);
+  }
+
+  /* The page has no margins (full-bleed accent rule), so the sheet keeps its own. */
   .doc {
     position: absolute;
     inset: 0 auto auto 0;
     width: 210mm;
+    min-height: 297mm;
+    padding: 14mm 14mm 16mm;
     box-shadow: none;
     border-radius: 0;
   }
@@ -516,4 +524,20 @@
   .doc-zoom {
     zoom: 1 !important;
   }
+}
+
+/* The PDF renderer's page (app/[locale]/print): just the A4 sheet. */
+.print-page {
+  min-height: 100dvh;
+  background: var(--surface);
+}
+
+/* Recurring invoices list */
+.rec-actions {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+tr.is-muted td {
+  color: var(--text-tertiary);
 }

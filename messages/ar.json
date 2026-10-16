@@ -128,7 +128,8 @@
     "milestonesEmpty": "لا مراحل قادمة.",
     "stage": "المرحلة",
     "count": "العدد",
-    "value": "القيمة"
+    "value": "القيمة",
+    "reminderEmailed": "أُرسل تذكير بالبريد للفاتورة {number}"
   },
   "activity": {
     "lead_created": "عميل محتمل جديد — {title}",
@@ -982,7 +983,8 @@
       "sendAgain": "إعادة الإرسال",
       "sendReminder": "إرسال تذكير",
       "voided": "أُلغيت {number}",
-      "void": "إلغاء الفاتورة"
+      "void": "إلغاء الفاتورة",
+      "reminderEmailed": "أُرسل تذكير بالبريد للفاتورة {number}"
     },
     "send": {
       "title": "إرسال {number}",
@@ -996,7 +998,12 @@
       "mailAppNote": "يفتح بريدك الإلكتروني بهذه الرسالة؛ أرفق ملف PDF من «تنزيل PDF».",
       "defaultSubject": "{doc} {number} – {from}",
       "defaultMessageInvoice": "السلام عليكم {client}،\n\nتجدون مرفقاً الفاتورة {number} بمبلغ {amount}، المستحقة في {date}.\n\nمع التحية،\n{from}",
-      "defaultMessageQuotation": "السلام عليكم {client}،\n\nتجدون مرفقاً عرض السعر {number} بمبلغ {amount}، الصالح حتى {date}.\n\nمع التحية،\n{from}"
+      "defaultMessageQuotation": "السلام عليكم {client}،\n\nتجدون مرفقاً عرض السعر {number} بمبلغ {amount}، الصالح حتى {date}.\n\nمع التحية،\n{from}",
+      "attachNote": "يُرسل بالبريد من Apex CRM مع ملف PDF مرفق. تصل الردود إلى بريدك الإلكتروني.",
+      "pdfFailed": "تعذّر إنشاء ملف PDF.",
+      "mailFailed": "تعذّر إرسال البريد (تحقّق من إعدادات البريد).",
+      "emailed": "أُرسل {number} بالبريد إلى {to}",
+      "useMailApp": "فتحه في تطبيق البريد لديّ بدلًا من ذلك"
     },
     "pay": {
       "title": "تسجيل دفعة",
@@ -1041,7 +1048,49 @@
       "rem_sent": "أُرسل",
       "rem_due": "مستحق",
       "rem_upcoming": "قادم",
-      "remindersNote": "يُسجَّل كل تذكير مُرسل في سجل النشاط."
+      "remindersNote": "يُسجَّل كل تذكير مُرسل في سجل النشاط.",
+      "rem_skipped": "تم تخطّيه"
+    },
+    "recurring": {
+      "repeat": "تكرار",
+      "title": "تكرار {number}",
+      "create": "إنشاء التكرار",
+      "help": "تُنشأ نسخة من هذه الفاتورة (نفس العميل والأسطر والشروط) تلقائيًا في كل موعد.",
+      "interval": "التكرار",
+      "every_monthly": "كل شهر",
+      "every_quarterly": "كل 3 أشهر",
+      "every_yearly": "كل سنة",
+      "firstDate": "أول فاتورة جديدة في",
+      "endDate": "التوقف بعد",
+      "endHelp": "اتركه فارغًا ليستمر حتى توقفه.",
+      "optional": "اختياري",
+      "invalidDate": "اختر تاريخًا صالحًا.",
+      "endBeforeStart": "يجب أن يكون تاريخ الانتهاء بعد التاريخ الأول.",
+      "autoSend": "إرسالها تلقائيًا إلى العميل بالبريد",
+      "autoSendOn": "تُرسل كل فاتورة جديدة إلى العميل مع ملف PDF.",
+      "autoSendOff": "تُنشأ كل فاتورة جديدة كمسودة لتراجعها وترسلها.",
+      "created": "التكرار ابتداءً من {date}",
+      "pageTitle": "الفواتير المتكرّرة",
+      "back": "العودة إلى الفواتير",
+      "emptyTitle": "لا توجد فواتير متكرّرة",
+      "emptyBody": "افتح فاتورة واختر «تكرار» لفوترة عميل كل شهر أو ربع سنة أو سنة.",
+      "col_client": "العميل",
+      "col_copy": "نسخة من",
+      "col_every": "التكرار",
+      "col_next": "الفاتورة التالية",
+      "col_send": "الإرسال",
+      "col_runs": "المُنشأة",
+      "col_actions": "إجراءات",
+      "until": "حتى {date}",
+      "pausedBadge": "متوقّف مؤقتًا",
+      "sendAuto": "تُرسل تلقائيًا",
+      "sendDraft": "مسودة للمراجعة",
+      "pause": "إيقاف مؤقت",
+      "resume": "استئناف",
+      "delete": "حذف التكرار",
+      "paused": "تم إيقاف التكرار مؤقتًا",
+      "resumed": "تم استئناف التكرار",
+      "deleted": "تم حذف التكرار"
     }
   },
   "followUps": {
@@ -1458,6 +1507,8 @@
     "invite_subject": "دعاك {inviter} إلى {workspace} على Apex CRM",
     "invite_body": "دعاك {inviter} للانضمام إلى مساحة العمل {workspace} على Apex CRM، للعمل معًا على العملاء والمشاريع والفواتير.",
     "invite_expiry": "تنتهي صلاحية الدعوة بعد 7 أيام. إذا لم تكن تتوقّعها، يمكنك تجاهل هذه الرسالة.",
-    "invite_cta": "قبول الدعوة"
+    "invite_cta": "قبول الدعوة",
+    "reminder_subject": "تذكير: الفاتورة {number} من {company}",
+    "reminder_body": "مرحبًا {client}،\n\nنذكّركم بأن الفاتورة {number} (المتبقي {amount}) كان موعد استحقاقها {date}. تجدونها مرفقة.\n\nإذا كنتم قد سدّدتموها، فشكرًا لكم ويرجى تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\n{company}"
   }
 }

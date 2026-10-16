@@ -25,7 +25,7 @@ async function sentInvoice(page: Page, title: string, amount: string) {
   const number = (await page.getByRole("heading", { level: 1 }).innerText()).trim();
   await page.getByRole("button", { name: "Send", exact: true }).click();
   await page.getByRole("dialog", { name: /^Send INV-/ }).getByRole("button", { name: "Send" }).click();
-  await expect(page.locator(".toasts").getByText(/marked as sent to/)).toBeVisible();
+  await expect(page.locator(".toasts").getByText(/emailed to/)).toBeVisible();
   return number;
 }
 
@@ -105,7 +105,7 @@ test("reminder schedule on an overdue invoice; the client switch turns reminders
   const sentBefore = await rem.locator("li.rem-sent").count();
   await expect(rem.locator("li.rem-due").first()).toBeVisible();
   await rem.getByRole("button", { name: /Send reminder/ }).click();
-  await expect(page.locator(".toasts").getByText(/Reminder logged/)).toBeVisible();
+  await expect(page.locator(".toasts").getByText(/Reminder (logged|emailed)/)).toBeVisible();
   await page.reload();
   await expect(rem.locator("li.rem-sent")).toHaveCount(sentBefore + 1);
   const invoiceUrl = page.url();

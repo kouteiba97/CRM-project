@@ -140,6 +140,7 @@ export async function DocumentRecordPage({ kind, id }: { kind: DocumentKind; id:
             locale={ui}
             convertedInvoiceId={quotation?.doc.convertedInvoiceId ?? null}
             canVoid={can(session.role, "admin")}
+            issueDate={rec.doc.issueDate}
             sendSubject={tsend("defaultSubject", {
               doc: docTitle,
               number: rec.doc.number,

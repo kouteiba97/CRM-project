@@ -213,3 +213,8 @@ summary.fu-group-head:focus-visible {
     grid-column: 2;
   }
 }
+
+/* A step a later reminder caught up on: not owed any more. */
+.rem-skipped {
+  color: var(--text-tertiary);
+}

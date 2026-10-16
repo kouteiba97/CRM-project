@@ -128,7 +128,8 @@
     "milestonesEmpty": "Aucun jalon à venir.",
     "stage": "Étape",
     "count": "Nombre",
-    "value": "Valeur"
+    "value": "Valeur",
+    "reminderEmailed": "Relance envoyée par e-mail pour {number}"
   },
   "activity": {
     "lead_created": "Nouveau prospect — {title}",
@@ -982,7 +983,8 @@
       "sendAgain": "Renvoyer",
       "sendReminder": "Envoyer une relance",
       "voided": "{number} annulée",
-      "void": "Annuler la facture"
+      "void": "Annuler la facture",
+      "reminderEmailed": "Relance envoyée par e-mail pour {number}"
     },
     "send": {
       "title": "Envoyer {number}",
@@ -996,7 +998,12 @@
       "mailAppNote": "Votre messagerie s’ouvre avec ce message ; joignez le PDF depuis « Télécharger le PDF ».",
       "defaultSubject": "{doc} {number} – {from}",
       "defaultMessageInvoice": "Bonjour {client},\n\nVeuillez trouver la facture {number} d’un montant de {amount}, à régler avant le {date}.\n\nCordialement,\n{from}",
-      "defaultMessageQuotation": "Bonjour {client},\n\nVeuillez trouver le devis {number} d’un montant de {amount}, valable jusqu’au {date}.\n\nCordialement,\n{from}"
+      "defaultMessageQuotation": "Bonjour {client},\n\nVeuillez trouver le devis {number} d’un montant de {amount}, valable jusqu’au {date}.\n\nCordialement,\n{from}",
+      "attachNote": "Envoyé par e-mail depuis Apex CRM avec le PDF en pièce jointe. Les réponses arrivent à votre adresse e-mail.",
+      "pdfFailed": "Le PDF n'a pas pu être généré.",
+      "mailFailed": "L'e-mail n'a pas pu être envoyé (vérifiez les réglages e-mail).",
+      "emailed": "{number} envoyé par e-mail à {to}",
+      "useMailApp": "Ouvrir plutôt dans ma messagerie"
     },
     "pay": {
       "title": "Enregistrer un paiement",
@@ -1041,7 +1048,49 @@
       "rem_sent": "Envoyée",
       "rem_due": "À envoyer",
       "rem_upcoming": "À venir",
-      "remindersNote": "Chaque relance envoyée est consignée dans l’activité."
+      "remindersNote": "Chaque relance envoyée est consignée dans l’activité.",
+      "rem_skipped": "Sautée"
+    },
+    "recurring": {
+      "repeat": "Répéter",
+      "title": "Répéter {number}",
+      "create": "Créer la récurrence",
+      "help": "Une copie de cette facture (même client, lignes et conditions) est créée automatiquement à chaque date.",
+      "interval": "Répéter",
+      "every_monthly": "Chaque mois",
+      "every_quarterly": "Tous les 3 mois",
+      "every_yearly": "Chaque année",
+      "firstDate": "Première nouvelle facture le",
+      "endDate": "Arrêter après",
+      "endHelp": "Laissez vide pour continuer jusqu'à ce que vous l'arrêtiez.",
+      "optional": "Facultatif",
+      "invalidDate": "Choisissez une date valide.",
+      "endBeforeStart": "La date de fin doit être après la première date.",
+      "autoSend": "L'envoyer automatiquement par e-mail au client",
+      "autoSendOn": "Chaque nouvelle facture est envoyée au client avec son PDF.",
+      "autoSendOff": "Chaque nouvelle facture est créée en brouillon pour que vous la vérifiiez et l'envoyiez.",
+      "created": "Récurrence à partir du {date}",
+      "pageTitle": "Factures récurrentes",
+      "back": "Retour aux factures",
+      "emptyTitle": "Aucune facture récurrente",
+      "emptyBody": "Ouvrez une facture et choisissez Répéter pour facturer un client chaque mois, trimestre ou année.",
+      "col_client": "Client",
+      "col_copy": "Copie de",
+      "col_every": "Fréquence",
+      "col_next": "Prochaine facture",
+      "col_send": "Envoi",
+      "col_runs": "Créées",
+      "col_actions": "Actions",
+      "until": "jusqu'au {date}",
+      "pausedBadge": "En pause",
+      "sendAuto": "Envoyée automatiquement",
+      "sendDraft": "Brouillon à vérifier",
+      "pause": "Mettre en pause",
+      "resume": "Reprendre",
+      "delete": "Supprimer la récurrence",
+      "paused": "Récurrence en pause",
+      "resumed": "Récurrence reprise",
+      "deleted": "Récurrence supprimée"
     }
   },
   "followUps": {
@@ -1458,6 +1507,8 @@
     "invite_subject": "{inviter} vous invite dans {workspace} sur Apex CRM",
     "invite_body": "{inviter} vous invite à rejoindre l'espace {workspace} sur Apex CRM, pour travailler ensemble sur les clients, projets et factures.",
     "invite_expiry": "L'invitation expire dans 7 jours. Si vous ne l'attendiez pas, ignorez cet e-mail.",
-    "invite_cta": "Accepter l'invitation"
+    "invite_cta": "Accepter l'invitation",
+    "reminder_subject": "Rappel : facture {number} de {company}",
+    "reminder_body": "Bonjour {client},\n\nPetit rappel : la facture {number} ({amount} restant dû) était à régler le {date}. Vous la trouverez en pièce jointe.\n\nSi vous l'avez déjà réglée, merci, et ne tenez pas compte de ce message.\n\nCordialement,\n{company}"
   }
 }

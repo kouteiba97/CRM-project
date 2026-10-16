@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { activities, invoices, tasks, taskStatus, users } from "@/db/schema";
+import { sendReminder } from "@/lib/invoice-reminders";
 import { getSession } from "@/lib/session";
 import { SIDEBAR_COOKIE, THEME_COOKIE } from "@/lib/theme";
 
@@ -44,25 +45,19 @@ export async function setTaskStatus(taskId: string, status: string) {
  * Logs a payment reminder on the invoice's timeline. Sending the e-mail itself arrives with the
  * Invoices module (Send modal with recipient, subject and attached PDF).
  */
+/** "Send reminder": emails the client (with the PDF) when they have an email, and logs it. */
 export async function sendInvoiceReminder(invoiceId: string) {
   const { workspaceId, userId } = await getSession();
   const id = uuid.parse(invoiceId);
   const [inv] = await db
-    .select({ id: invoices.id, number: invoices.number, clientId: invoices.clientId })
+    .select({ id: invoices.id, number: invoices.number })
     .from(invoices)
     .where(and(eq(invoices.id, id), eq(invoices.workspaceId, workspaceId)));
   if (!inv) throw new Error("Invoice not found");
-  await db.insert(activities).values({
-    workspaceId,
-    actorId: userId,
-    kind: "invoice_reminder",
-    entityType: "invoice",
-    entityId: inv.id,
-    clientId: inv.clientId,
-    payload: { number: inv.number },
-  });
+  const outcome = await sendReminder(workspaceId, inv.id, userId);
+  if (outcome === "failed") throw new Error("Reminder could not be sent");
   revalidatePath("/[locale]", "layout");
-  return { number: inv.number };
+  return { number: inv.number, emailed: outcome === "sent" };
 }
 
 export async function saveLocale(locale: string) {

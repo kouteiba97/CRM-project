@@ -1,8 +1,23 @@
 import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
 
-export type Mail = { to: string; subject: string; html: string; text: string };
-export type CapturedMail = Mail & { id: number; at: string };
+export type Attachment = { filename: string; content: Buffer; contentType: string };
+export type Mail = {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  /** Replies go to this person (the colleague who sent the invoice), not to the no-reply sender. */
+  replyTo?: string;
+  /** Shown as the sender name, e.g. the company: "Apex Tech <no-reply@…>". */
+  fromName?: string;
+  attachments?: Attachment[];
+};
+export type CapturedMail = Omit<Mail, "attachments"> & {
+  id: number;
+  at: string;
+  attachments: { filename: string; size: number }[];
+};
 
 /**
  * Outgoing email. With SMTP_HOST set, mail goes out through that server (Gmail with an app
@@ -33,12 +48,16 @@ export function devOutbox(): CapturedMail[] {
 
 export async function sendMail(mail: Mail) {
   if (mailConfigured()) {
+    const from = process.env.MAIL_FROM ?? process.env.SMTP_USER ?? "";
+    const address = from.match(/<([^>]+)>/)?.[1] ?? from;
     await smtp().sendMail({
-      from: process.env.MAIL_FROM ?? process.env.SMTP_USER,
+      from: mail.fromName ? { name: mail.fromName, address } : from,
       to: mail.to,
+      replyTo: mail.replyTo,
       subject: mail.subject,
       html: mail.html,
       text: mail.text,
+      attachments: mail.attachments,
     });
     return;
   }
@@ -47,7 +66,13 @@ export async function sendMail(mail: Mail) {
   }
   const outbox = devOutbox();
   store.__devOutboxId = (store.__devOutboxId ?? 0) + 1;
-  outbox.unshift({ ...mail, id: store.__devOutboxId, at: new Date().toISOString() });
+  const { attachments, ...rest } = mail;
+  outbox.unshift({
+    ...rest,
+    id: store.__devOutboxId,
+    at: new Date().toISOString(),
+    attachments: (attachments ?? []).map((a) => ({ filename: a.filename, size: a.content.length })),
+  });
   outbox.length = Math.min(outbox.length, 50);
   console.info(`[dev mail] to ${mail.to}: ${mail.subject}\n${mail.text}`);
 }
