@@ -1,10 +1,11 @@
 "use server";
 
+import { notifyUsers } from "@/lib/notifications";
 import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db/client";
-import { activities, memberships, projects, tasks, taskStatus } from "@/db/schema";
+import { activities, memberships, projects, tasks, taskStatus, users } from "@/db/schema";
 import { getSession } from "@/lib/session";
 import { taskFieldErrors, taskFormSchema, type TaskFieldErrors } from "./schema";
 
@@ -45,6 +46,13 @@ const logDone = (workspaceId: string, userId: string, t: { id: string; title: st
     payload: { title: t.title },
   });
 
+/** Tells a colleague a task was given to them (not when you assign yourself). */
+async function notifyAssignee(workspaceId: string, userId: string, assigneeId: string | null, title: string) {
+  if (!assigneeId || assigneeId === userId) return;
+  const [me] = await db.select({ name: users.name }).from(users).where(eq(users.id, userId));
+  await notifyUsers(workspaceId, [assigneeId], { kind: "task_assigned", payload: { title, by: me?.name ?? "" }, href: "/tasks" });
+}
+
 export async function createTask(input: Record<string, string>): Promise<TaskResult> {
   const { workspaceId, userId } = await getSession();
   const parsed = taskFormSchema.safeParse(input);
@@ -70,6 +78,7 @@ export async function createTask(input: Record<string, string>): Promise<TaskRes
     console.error("[createTask]", err);
     return { ok: false, fieldErrors: {}, formError: "generic" };
   }
+  await notifyAssignee(workspaceId, userId, r.assigneeId, v.title);
   revalidatePath("/[locale]", "layout");
   return { ok: true, id, title: v.title };
 }
@@ -81,7 +90,7 @@ export async function updateTask(taskId: string, input: Record<string, string>):
   if (!parsed.success) return { ok: false, fieldErrors: taskFieldErrors(parsed.error) };
   const v = parsed.data;
   const [before] = await db
-    .select({ status: tasks.status })
+    .select({ status: tasks.status, assigneeId: tasks.assigneeId })
     .from(tasks)
     .where(and(eq(tasks.id, id), eq(tasks.workspaceId, workspaceId), isNull(tasks.archivedAt)));
   if (!before) return { ok: false, fieldErrors: {}, formError: "generic" };
@@ -101,6 +110,7 @@ export async function updateTask(taskId: string, input: Record<string, string>):
     })
     .where(eq(tasks.id, id));
   if (nowDone) await logDone(workspaceId, userId, { id, title: v.title, projectId: r.projectId, clientId: r.clientId });
+  if (r.assigneeId !== before.assigneeId) await notifyAssignee(workspaceId, userId, r.assigneeId, v.title);
   revalidatePath("/[locale]", "layout");
   return { ok: true, id, title: v.title };
 }

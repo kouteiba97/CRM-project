@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, inArray, ne } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNull, ne } from "drizzle-orm";
 import { db } from "@/db/client";
 import { memberships, notifications } from "@/db/schema";
 import { can, type Role } from "@/lib/roles";
@@ -28,10 +28,13 @@ export async function notifyUsers(workspaceId: string, userIds: string[], n: Inp
   }
 }
 
-/** Notifies the workspace's members (optionally only admins/owners, and not the actor). */
+/**
+ * Notifies the workspace's members (optionally only admins/owners), plus `alsoUserIds` (e.g. a
+ * client's owner) — each person once, and never the actor (`exceptUserId`).
+ */
 export async function notifyWorkspace(
   workspaceId: string,
-  n: Input & { exceptUserId?: string; minRole?: Role },
+  n: Input & { exceptUserId?: string; minRole?: Role; alsoUserIds?: (string | null | undefined)[] },
 ) {
   const rows = await db
     .select({ userId: memberships.userId, role: memberships.role })
@@ -42,7 +45,11 @@ export async function notifyWorkspace(
         n.exceptUserId ? ne(memberships.userId, n.exceptUserId) : undefined,
       ),
     );
-  const targets = rows.filter((r) => !n.minRole || can(r.role, n.minRole)).map((r) => r.userId);
+  const members = new Set(rows.map((r) => r.userId));
+  const targets = [
+    ...rows.filter((r) => !n.minRole || can(r.role, n.minRole)).map((r) => r.userId),
+    ...(n.alsoUserIds ?? []).filter((id): id is string => Boolean(id && members.has(id))),
+  ];
   await notifyUsers(workspaceId, targets, n);
 }
 
@@ -57,4 +64,19 @@ export async function markRead(userId: string, ids: string[] | "all", workspaceI
         ids === "all" ? undefined : inArray(notifications.id, ids),
       ),
     );
+}
+
+/** The bell: newest notifications of this user in this workspace, and how many are unread. */
+export async function getNotifications(userId: string, workspaceId: string) {
+  const rows = await db
+    .select()
+    .from(notifications)
+    .where(and(eq(notifications.userId, userId), eq(notifications.workspaceId, workspaceId)))
+    .orderBy(desc(notifications.createdAt))
+    .limit(15);
+  const [unread] = await db
+    .select({ n: count() })
+    .from(notifications)
+    .where(and(eq(notifications.userId, userId), eq(notifications.workspaceId, workspaceId), isNull(notifications.readAt)));
+  return { rows, unread: unread?.n ?? 0 };
 }

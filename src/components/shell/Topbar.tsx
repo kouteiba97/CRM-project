@@ -18,6 +18,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { saveLocale, saveTheme } from "@/app/actions";
 import { logout } from "@/components/auth/actions";
+import { markNotificationsRead } from "@/app/notification-actions";
 import type { SidebarCounts } from "@/db/queries/dashboard";
 import type { Locale } from "@/lib/format";
 import { Menu } from "./Menu";
@@ -39,13 +40,20 @@ function subscribeTheme(onChange: () => void) {
 }
 
 /** DS › PageHeader › Top bar: breadcrumbs start; search, quick-create, notifications, language, theme, user end. */
+/** One line in the bell, already written in the reader's language (see the app layout). */
+export type BellNotification = { id: string; text: string; href: string | null; read: boolean; ago: string };
+
 export function Topbar({
   counts,
+  notifications,
+  unreadNotifications,
   userName,
   onOpenNav,
   onOpenSearch,
 }: {
   counts: SidebarCounts;
+  notifications: BellNotification[];
+  unreadNotifications: number;
   userName: string;
   onOpenNav: () => void;
   onOpenSearch: () => void;
@@ -57,7 +65,7 @@ export function Topbar({
   const current = activeKey(pathname);
   const record = useRecordCrumb();
   const moduleHref = ALL_NAV.find((i) => i.key === current)?.href;
-  const unread = counts.followUpsDue + counts.overdueInvoices;
+  const unread = unreadNotifications;
 
   const dark = useSyncExternalStore(subscribeTheme, () => document.documentElement.dataset.theme === "dark", () => false);
   const toggleTheme = () => {
@@ -144,13 +152,44 @@ export function Topbar({
               <Bell className="ax-icon" aria-hidden />
               {unread > 0 && (
                 <span className="icon-count" aria-hidden>
-                  {unread}
+                  {unread > 9 ? "9+" : unread}
                 </span>
               )}
             </>
           }
         >
-          <div className="ax-menu-label">{t("notifications")}</div>
+          <div className="ax-menu-label bell-head">
+            {t("notifications")}
+            {unreadNotifications > 0 && (
+              <button
+                type="button"
+                role="menuitem"
+                className="ax-btn ax-btn-tertiary ax-btn-xs"
+                onClick={() => startTransition(() => markNotificationsRead("all"))}
+              >
+                {t("markAllRead")}
+              </button>
+            )}
+          </div>
+          {notifications.length === 0 && <div className="ax-menu-label ax-faint">{t("noNotifications")}</div>}
+          {notifications.map((n) => (
+            <Link
+              key={n.id}
+              href={n.href ?? "/"}
+              role="menuitem"
+              className={`ax-menu-item bell-item${n.read ? "" : " is-unread"}`}
+              onClick={() => !n.read && startTransition(() => markNotificationsRead([n.id]))}
+            >
+              <span className="bell-dot" aria-hidden />
+              <span className="bell-text">
+                {n.text}
+                <span className="ax-faint bell-ago">{n.ago}</span>
+              </span>
+              {!n.read && <span className="sr-only">{t("unread")}</span>}
+            </Link>
+          ))}
+          <div className="ax-menu-sep" role="separator" />
+          <div className="ax-menu-label">{t("needsAttention")}</div>
           <Link href="/follow-ups" role="menuitem" className="ax-menu-item">
             <BellRing className="ax-icon" aria-hidden />
             {tn("followUps")}

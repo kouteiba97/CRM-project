@@ -15,3 +15,6 @@ tests/.auth/
 # User guide build intermediates (npm run guide)
 docs/guide/shots/
 docs/guide/video-raw/
+
+# Local file uploads (development without Vercel Blob)
+.data/

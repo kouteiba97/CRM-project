@@ -32,8 +32,7 @@ async function overdueNudges(now: Date) {
     .where(and(eq(invoices.dueDate, yesterday), eq(invoiceBalances.displayStatus, "overdue")));
   for (const r of rows) {
     const n = { kind: "invoice_overdue" as const, payload: { number: r.number, client: r.client }, href: `/invoices/${r.id}` };
-    await notifyWorkspace(r.workspaceId, { ...n, minRole: "admin", exceptUserId: r.ownerId ?? undefined });
-    if (r.ownerId) await notifyUsers(r.workspaceId, [r.ownerId], n);
+    await notifyWorkspace(r.workspaceId, { ...n, minRole: "admin", alsoUserIds: [r.ownerId] });
   }
   return rows.length;
 }

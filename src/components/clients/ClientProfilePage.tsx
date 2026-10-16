@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from "react";
+import { FilesPanel } from "@/components/files/FilesPanel";
 import { notFound } from "next/navigation";
 import {
   Activity,
@@ -543,7 +544,7 @@ async function TabPanel({
     case "payments":
       return <PaymentsTab ctx={ctx} />;
     case "files":
-      return <FilesTab />;
+      return <FilesTab ctx={ctx} />;
     case "activity":
       return <ActivityTab ctx={ctx} {...activity} />;
   }
@@ -842,13 +843,9 @@ async function PaymentsTab({ ctx }: { ctx: Ctx }) {
   );
 }
 
-async function FilesTab() {
+async function FilesTab({ ctx }: { ctx: Ctx }) {
   const { t } = await setup();
-  return (
-    <div className="ax-card">
-      <EmptyState icon={Paperclip} title={t("noFiles")} body={t("noFilesBody")} />
-    </div>
-  );
+  return <FilesPanel entityType="client" entityId={ctx.id} emptyTitle={t("noFiles")} emptyBody={t("noFilesBody")} />;
 }
 
 /** Activity page size; "Load older activity" raises `?limit=` by this much (never infinite scroll). */

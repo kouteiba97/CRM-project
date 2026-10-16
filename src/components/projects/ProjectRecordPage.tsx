@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from "react";
+import { FilesPanel } from "@/components/files/FilesPanel";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -182,9 +183,7 @@ export async function ProjectRecordPage({ id, sp }: { id: string; sp: SP }) {
           {tab === "tasks" && <TasksTab ctx={ctx} />}
           {tab === "milestones" && <MilestonesTab ctx={ctx} milestones={milestones} />}
           {tab === "files" && (
-            <div className="ax-card">
-              <EmptyState icon={Paperclip} title={t("noFiles")} body={t("noFilesBody")} />
-            </div>
+            <FilesPanel entityType="project" entityId={ctx.id} emptyTitle={t("noFiles")} emptyBody={t("noFilesBody")} />
           )}
           {tab === "invoices" && <InvoicesTab ctx={ctx} />}
           {tab === "activity" && <ActivityTab ctx={ctx} />}

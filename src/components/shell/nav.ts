@@ -5,6 +5,7 @@ import {
   FolderKanban,
   LayoutDashboard,
   Receipt,
+  ReceiptText,
   Settings,
   SquareCheckBig,
   Target,
@@ -24,6 +25,7 @@ export type NavKey =
   | "quotations"
   | "invoices"
   | "payments"
+  | "expenses"
   | "reports"
   | "settings";
 
@@ -72,6 +74,7 @@ export const NAV: NavGroup[] = [
         count: { key: "overdueInvoices", alert: true },
       },
       { key: "payments", href: "/payments", icon: Wallet },
+      { key: "expenses", href: "/expenses", icon: ReceiptText },
     ],
   },
 ];

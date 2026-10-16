@@ -31,7 +31,7 @@ const num = (v: unknown) => Number(v ?? 0);
 export async function getReports(ws: string, currency: string, range: ReportRange, now = new Date()) {
   const { start, end, months } = reportBounds(range, now);
 
-  const [kpi, series, aging, topClients, pipeline, lost, otherCurrencies] = await Promise.all([
+  const [kpi, series, aging, topClients, pipeline, lost, otherCurrencies, spent] = await Promise.all([
     db.execute<{ collected: string; invoiced: string; invoices: number; won: number; lost: number; won_value: string; avg_days: string | null }>(sql`
       select
         (select coalesce(sum(amount_minor), 0) from payments
@@ -98,7 +98,14 @@ export async function getReports(ws: string, currency: string, range: ReportRang
       where workspace_id = ${ws} and archived_at is null and status = 'received' and currency <> ${currency}
         and paid_on >= ${start} and paid_on < ${end}
       group by currency`),
+    db.execute<{ category: string; minor: string }>(sql`
+      select category::text, sum(amount_minor) as minor from expenses
+      where workspace_id = ${ws} and archived_at is null and currency = ${currency}
+        and spent_on >= ${start} and spent_on < ${end}
+      group by category order by sum(amount_minor) desc`),
   ]);
+  const expenseRows = spent.rows.map((r) => ({ category: r.category, minor: num(r.minor) }));
+  const expensesMinor = expenseRows.reduce((a, r) => a + r.minor, 0);
 
   const k = kpi.rows[0]!;
   const closed = num(k.won) + num(k.lost);
@@ -130,6 +137,8 @@ export async function getReports(ws: string, currency: string, range: ReportRang
     }),
     lostReasons: lost.rows.map((r) => ({ reason: r.reason, count: num(r.n) })),
     otherCurrencies: otherCurrencies.rows.map((r) => ({ currency: r.currency, minor: num(r.minor) })),
+    /** Money out in the same range and currency; profit = collected − expenses (cash basis). */
+    expenses: { totalMinor: expensesMinor, byCategory: expenseRows, profitMinor: num(k.collected) - expensesMinor },
   };
 }
 export type Reports = Awaited<ReturnType<typeof getReports>>;

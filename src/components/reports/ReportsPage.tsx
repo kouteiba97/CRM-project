@@ -1,4 +1,5 @@
 import {
+  ReceiptText,
   Banknote,
   ChartColumn,
   CircleAlert,
@@ -85,6 +86,7 @@ async function ReportsBody({
   const t = await getTranslations("reports");
   const tl = await getTranslations("status.lead");
   const tr = await getTranslations("leads.reason");
+  const te = await getTranslations("expenses");
   const td = await getTranslations("dashboard");
   const k = data.kpis;
   const others = data.otherCurrencies
@@ -320,6 +322,51 @@ async function ReportsBody({
                 </ul>
               )}
             </div>
+          </div>
+        </Card>
+
+        <Card
+          id="rep-profit"
+          title={t("profitTitle", { currency })}
+          sub={t("profitSub")}
+          icon={ReceiptText}
+          tint="green"
+          className="span-12"
+        >
+          <div className="card-body profit-body">
+            <dl className="profit-figures">
+              <div>
+                <dt>{t("profitCollected")}</dt>
+                <dd>{f.money(data.kpis.collectedMinor, currency)}</dd>
+              </div>
+              <div>
+                <dt>{t("profitExpenses")}</dt>
+                <dd>− {f.money(data.expenses.totalMinor, currency)}</dd>
+              </div>
+              <div className={data.expenses.profitMinor < 0 ? "is-negative" : undefined}>
+                <dt>{t("profitResult")}</dt>
+                <dd>{f.money(data.expenses.profitMinor, currency)}</dd>
+              </div>
+            </dl>
+            {data.expenses.byCategory.length > 0 ? (
+              <ul className="reason-list" aria-label={t("profitByCategory")}>
+                {data.expenses.byCategory.map((c) => (
+                  <li key={c.category}>
+                    <Link className="ax-link" href={`/expenses?period=all&category=${c.category}`}>
+                      {te(`cat_${c.category}` as never)}
+                    </Link>
+                    <span className="ax-num ax-faint">{f.money(c.minor, currency)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="ax-faint">
+                {t("profitNoExpenses")}{" "}
+                <Link className="ax-link" href="/expenses?new=1">
+                  {t("profitAddExpense")}
+                </Link>
+              </p>
+            )}
           </div>
         </Card>
       </div>

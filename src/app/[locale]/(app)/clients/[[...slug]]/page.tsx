@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ClientsImportPage } from "@/components/clients/ClientsImportPage";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ClientsListPage } from "@/components/clients/ClientsListPage";
 import { ClientProfilePage, loadClientForMeta } from "@/components/clients/ClientProfilePage";
@@ -24,6 +25,7 @@ export default async function Page({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const sp = await searchParams;
   if (!slug || slug.length === 0) return <ClientsListPage searchParams={sp} />;
+  if (slug.length === 1 && slug[0] === "import") return <ClientsImportPage />;
   if (slug.length === 1 && slug[0]) {
     return <ClientProfilePage id={slug[0]} sp={sp} />;
   }

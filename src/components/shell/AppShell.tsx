@@ -7,7 +7,7 @@ import { saveSidebar } from "@/app/actions";
 import type { SidebarCounts } from "@/db/queries/dashboard";
 import { ALL_NAV, QUICK_CREATE } from "./nav";
 import { Sidebar } from "./Sidebar";
-import { Topbar } from "./Topbar";
+import { Topbar, type BellNotification } from "./Topbar";
 import { CommandPalette } from "./CommandPalette";
 import { ToastProvider } from "./Toasts";
 import { CrumbProvider } from "./Crumbs";
@@ -24,6 +24,8 @@ export function AppShell({
   workspaceName,
   workspaceId,
   workspaces,
+  notifications,
+  unreadNotifications,
   userName,
   initialSidebar,
 }: {
@@ -32,6 +34,8 @@ export function AppShell({
   workspaceName: string;
   workspaceId: string;
   workspaces: { id: string; name: string }[];
+  notifications: BellNotification[];
+  unreadNotifications: number;
   userName: string;
   initialSidebar: SidebarState;
 }) {
@@ -127,6 +131,8 @@ export function AppShell({
         <div className="app-main">
           <Topbar
             counts={counts}
+            notifications={notifications}
+            unreadNotifications={unreadNotifications}
             userName={userName}
             onOpenNav={() => setNavOpen(true)}
             onOpenSearch={() => setPaletteOpen(true)}

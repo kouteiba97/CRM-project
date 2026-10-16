@@ -517,3 +517,35 @@ export const recurringInvoices = pgTable(
   },
   (t) => [index("recurring_due_idx").on(t.active, t.nextDate)],
 );
+
+/** Files attached to a client or project. The bytes live in object storage (`storageKey`). */
+export const files = pgTable(
+  "files",
+  {
+    ...scoped(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    name: text("name").notNull(),
+    size: integer("size").notNull(),
+    contentType: text("content_type").notNull(),
+    storageKey: text("storage_key").notNull(),
+  },
+  (t) => [index("files_entity_idx").on(t.workspaceId, t.entityType, t.entityId, t.createdAt)],
+);
+
+/** Money going out: what reports subtract from what was collected. */
+export const expenses = pgTable(
+  "expenses",
+  {
+    ...scoped(),
+    spentOn: date("spent_on").notNull(),
+    category: e.expenseCategory("category").notNull().default("other"),
+    vendor: text("vendor"),
+    description: text("description").notNull(),
+    amountMinor: money("amount_minor").notNull(),
+    currency: char("currency", { length: 3 }).notNull(),
+    projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
+    clientId: uuid("client_id").references(() => clients.id, { onDelete: "set null" }),
+  },
+  (t) => [index("expenses_ws_date").on(t.workspaceId, t.spentOn)],
+);

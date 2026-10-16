@@ -57,6 +57,20 @@
       "when": 1792159035554,
       "tag": "0007_recurring",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792159925118,
+      "tag": "0008_files",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792160038469,
+      "tag": "0009_expenses",
+      "breakpoints": true
     }
   ]
 }

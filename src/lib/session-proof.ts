@@ -32,3 +32,15 @@ export function sameOrigin(req: Request) {
     return false;
   }
 }
+
+/** Uploads (multipart) cannot be JSON: the Origin must still be this site. */
+export function sameOriginForm(req: Request) {
+  const origin = req.headers.get("origin");
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+  if (!origin || !host) return false;
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}

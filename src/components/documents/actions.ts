@@ -1,5 +1,6 @@
 "use server";
 
+import { notifyWorkspace } from "@/lib/notifications";
 import { nextNumber } from "@/lib/doc-numbers";
 import { documentPdf } from "@/lib/document-pdf";
 import { sendMail } from "@/lib/mail/send";
@@ -285,6 +286,19 @@ export async function recordPayment(invoiceId: string, input: Record<string, str
       clientId: inv.clientId,
       payload: { number: inv.number, amountMinor: v.amount, currency: inv.currency },
     });
+  if (inserted.length) {
+    // Admins and the client's owner hear about money coming in (not the person recording it).
+    const [client] = await db
+      .select({ name: clients.name, ownerId: clients.ownerId })
+      .from(clients)
+      .where(eq(clients.id, inv.clientId));
+    const n = {
+      kind: "payment_received" as const,
+      payload: { number: inv.number, amountMinor: v.amount, currency: inv.currency, client: client?.name ?? "" },
+      href: `/invoices/${id}`,
+    };
+    await notifyWorkspace(workspaceId, { ...n, minRole: "admin", exceptUserId: userId, alsoUserIds: [client?.ownerId] });
+  }
   revalidatePath("/[locale]", "layout");
   const [after] = await db
     .select({ balance: invoiceBalances.balanceMinor })

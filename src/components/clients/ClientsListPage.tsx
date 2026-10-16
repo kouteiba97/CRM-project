@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
@@ -37,6 +37,10 @@ export async function ClientsListPage({ searchParams }: { searchParams: SP }) {
           <span className="meta">{t("count", { count: meta.count, n: f.number(meta.count) })}</span>
         )}
         <div className="actions">
+          <Link className="ax-btn ax-btn-secondary ax-btn-sm" href="/clients/import">
+            <Upload className="ax-icon" aria-hidden />
+            {t("importButton")}
+          </Link>
           <Link className="ax-btn ax-btn-primary ax-btn-sm" href="/clients?new=1" scroll={false}>
             <Plus className="ax-icon" aria-hidden />
             {t("newClient")}

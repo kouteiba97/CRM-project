@@ -880,3 +880,46 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ── Notifications (bell) ────────────────────────────────────────────────────────── */
+.bell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.bell-item {
+  align-items: flex-start;
+  max-width: 360px;
+  white-space: normal;
+}
+
+.bell-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: var(--radius-full);
+  background: transparent;
+}
+
+.bell-item.is-unread .bell-dot {
+  background: var(--accent-primary);
+}
+
+.bell-item.is-unread .bell-text {
+  font-weight: 600;
+}
+
+.bell-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.bell-ago {
+  font-size: 12px;
+  font-weight: 400;
+}
