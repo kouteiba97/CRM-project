@@ -491,7 +491,30 @@
       "field_contactFirstName": "الاسم الأول لجهة الاتصال",
       "field_contactLastName": "اسم عائلة جهة الاتصال"
     },
-    "importButton": "استيراد"
+    "importButton": "استيراد",
+    "columns": "الأعمدة",
+    "showColumns": "إظهار الأعمدة",
+    "preview": "نظرة سريعة",
+    "previewOf": "نظرة سريعة على {name}",
+    "previewContact": "جهة الاتصال الرئيسية",
+    "previewNothingDue": "لا شيء للتحصيل.",
+    "previewRecent": "آخر النشاطات",
+    "previewNoActivity": "لا يوجد نشاط بعد.",
+    "previewOpen": "فتح الملف الكامل",
+    "previewKind": {
+      "client_created": "إنشاء العميل",
+      "invoice_sent": "إرسال فاتورة",
+      "invoice_created": "إنشاء فاتورة",
+      "payment_received": "استلام دفعة",
+      "call_logged": "تسجيل مكالمة",
+      "email_logged": "تسجيل بريد",
+      "meeting_logged": "تسجيل اجتماع",
+      "note_added": "إضافة ملاحظة",
+      "follow_up_done": "إنجاز متابعة",
+      "invoice_reminder": "إرسال تذكير",
+      "quotation_sent": "إرسال عرض سعر",
+      "task_completed": "إنجاز مهمة"
+    }
   },
   "timeline": {
     "empty": "لا يوجد نشاط بعد.",
@@ -1532,7 +1555,10 @@
     "code_help": "الرمز المكوّن من 6 أرقام من التطبيق، أو أحد رموز الاسترداد.",
     "code_submit": "تحقّق",
     "code_back": "رجوع",
-    "error_2fa_invalid": "لم يعمل هذا الرمز. جرّب أحدث رمز من التطبيق."
+    "error_2fa_invalid": "لم يعمل هذا الرمز. جرّب أحدث رمز من التطبيق.",
+    "consent": "بإنشائك حسابًا فإنك توافق على <terms>شروط الاستخدام</terms> و<privacy>سياسة الخصوصية</privacy>.",
+    "privacyLink": "الخصوصية",
+    "termsLink": "الشروط"
   },
   "email": {
     "greeting": "مرحبًا {name}،",
@@ -1642,5 +1668,11 @@
     "deleteBody": "يُحذف الملف للجميع، ولا يمكن التراجع.",
     "delete": "حذف",
     "deleted": "تم حذف {name}"
+  },
+  "legal": {
+    "nav": "الصفحات القانونية",
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الاستخدام",
+    "contactFallback": "مالك مساحة عملك"
   }
 }

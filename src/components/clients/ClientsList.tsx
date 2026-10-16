@@ -19,7 +19,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleAlert,
+  Columns3,
   Download,
+  Eye,
   Plus,
   SearchX,
   Users,
@@ -42,7 +44,7 @@ import {
   SearchBox,
   type Option,
 } from "@/components/list/ListControls";
-import { DENSITY_COOKIE, FILTER_KEYS, patchQuery } from "./url";
+import { COLUMNS_COOKIE, DENSITY_COOKIE, FILTER_KEYS, OPTIONAL_COLUMNS, patchQuery, type OptionalColumn } from "./url";
 
 export type ClientRowView = {
   id: string;
@@ -66,12 +68,12 @@ type Sort = { key: string; dir: "asc" | "desc"; explicit: boolean };
 
 const COLUMNS = [
   { key: "name", sortable: true, cls: "" },
-  { key: "status", sortable: false, cls: "" },
-  { key: "projects", sortable: true, cls: "num p3" },
-  { key: "outstanding", sortable: true, cls: "num" },
-  { key: "lastContact", sortable: true, cls: "p3" },
-  { key: "nextFollowUp", sortable: true, cls: "" },
-  { key: "owner", sortable: true, cls: "p2" },
+  { key: "status", sortable: false, cls: "c-status" },
+  { key: "projects", sortable: true, cls: "num p3 c-projects" },
+  { key: "outstanding", sortable: true, cls: "num c-money" },
+  { key: "lastContact", sortable: true, cls: "p3 c-last" },
+  { key: "nextFollowUp", sortable: true, cls: "c-next" },
+  { key: "owner", sortable: true, cls: "p2 c-owner" },
 ] as const;
 
 export function ClientsList({
@@ -82,6 +84,7 @@ export function ClientsList({
   size,
   sort,
   density: initialDensity,
+  hiddenColumns,
   statuses,
   tags,
   owners,
@@ -94,6 +97,7 @@ export function ClientsList({
   size: number;
   sort: Sort;
   density: Density;
+  hiddenColumns: OptionalColumn[];
   statuses: Option[];
   tags: Option[];
   owners: Option[];
@@ -103,6 +107,12 @@ export function ClientsList({
   const sp = useSearchParams();
   const router = useRouter();
   const [density, setDensity] = useState(initialDensity);
+  const [hidden, setHidden] = useState<OptionalColumn[]>(hiddenColumns);
+  const toggleColumn = (c: OptionalColumn) => {
+    const next = hidden.includes(c) ? hidden.filter((x) => x !== c) : [...hidden, c];
+    setHidden(next);
+    document.cookie = `${COLUMNS_COOKIE}=${next.join(".")}; path=/; max-age=31536000; samesite=lax`;
+  };
   const [pending, start] = useTransition();
   const go = (qs: string) => start(() => router.replace(`/clients${qs}`, { scroll: false }));
 
@@ -137,6 +147,8 @@ export function ClientsList({
           owners={owners}
           density={density}
           onDensity={setDensityPref}
+          hidden={hidden}
+          onToggleColumn={toggleColumn}
           go={go}
           total={total}
         />
@@ -167,6 +179,7 @@ export function ClientsList({
             rows={rows}
             sort={sort}
             density={density}
+            hidden={hidden}
             selected={selected}
             onSelect={setSelected}
           />
@@ -253,6 +266,8 @@ function Toolbar({
   owners,
   density,
   onDensity,
+  hidden,
+  onToggleColumn,
   go,
   total,
 }: {
@@ -261,6 +276,8 @@ function Toolbar({
   owners: Option[];
   density: Density;
   onDensity: (d: Density) => void;
+  hidden: OptionalColumn[];
+  onToggleColumn: (c: OptionalColumn) => void;
   go: (qs: string) => void;
   total: number;
 }) {
@@ -323,6 +340,38 @@ function Toolbar({
           )}
 
           <span className="ax-spacer" />
+          <Menu
+            triggerClassName="ax-btn ax-btn-tertiary ax-btn-xs"
+            triggerLabel={t("columns")}
+            align="end"
+            trigger={
+              <>
+                <Columns3 className="ax-icon ax-icon-xs" aria-hidden />
+                {t("columns")}
+              </>
+            }
+          >
+            <div className="ax-menu-label">{t("showColumns")}</div>
+            {OPTIONAL_COLUMNS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={!hidden.includes(c)}
+                className="ax-menu-item menu-btn"
+                onClick={(e) => {
+                  // Keep the menu open while ticking several columns.
+                  e.stopPropagation();
+                  onToggleColumn(c);
+                }}
+              >
+                <span className="col-check" aria-hidden>
+                  {hidden.includes(c) ? "" : "✓"}
+                </span>
+                {t(`col.${c}`)}
+              </button>
+            ))}
+          </Menu>
           <div className="ax-segmented" role="group" aria-label={t("density")}>
             {(["default", "compact"] as const).map((d) => (
               <button
@@ -461,12 +510,14 @@ function Table({
   rows,
   sort,
   density,
+  hidden,
   selected,
   onSelect,
 }: {
   rows: ClientRowView[];
   sort: Sort;
   density: Density;
+  hidden: OptionalColumn[];
   selected: Set<string>;
   onSelect: (next: Set<string>) => void;
 }) {
@@ -548,7 +599,9 @@ function Table({
   };
 
   return (
-    <table className={`ax-table clients-table${density === "compact" ? " is-compact" : ""}`}>
+    <table
+      className={`ax-table clients-table${density === "compact" ? " is-compact" : ""}${hidden.map((c) => ` hide-${c}`).join("")}`}
+    >
       <caption className="sr-only">{t("tableCaption")}</caption>
       <thead>
         <tr>
@@ -631,6 +684,15 @@ function Table({
                   </Link>
                   {r.contact && <span className="sub">{r.contact}</span>}
                 </div>
+                <Link
+                  className="ax-btn ax-btn-tertiary ax-btn-xs ax-btn-icon row-preview"
+                  href={`/clients${patchQuery(sp, { preview: r.id }, { keepPage: true })}`}
+                  scroll={false}
+                  aria-label={t("previewOf", { name: r.name })}
+                  title={t("preview")}
+                >
+                  <Eye className="ax-icon ax-icon-xs" aria-hidden />
+                </Link>
               </div>
             </td>
             <td className="c-status" data-label={t("col.status")}>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offline · Apex CRM</title>
+<style>
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; box-sizing: border-box;
+    font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; background: #f3f7f8; color: #13303a; }
+  main { max-width: 420px; background: #fff; border: 1px solid #d9e4e7; border-radius: 12px; padding: 28px 24px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p { margin: 0 0 16px; line-height: 1.5; color: #4b6670; }
+  [dir="rtl"] { text-align: right; }
+  button { font: inherit; background: #1f7a6d; color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <h1>You're offline</h1>
+  <p>Apex CRM needs an internet connection. Check your connection, then try again.</p>
+  <p lang="fr">Vous êtes hors ligne. Vérifiez votre connexion puis réessayez.</p>
+  <p lang="ar" dir="rtl">أنت غير متصل بالإنترنت. تحقّق من اتصالك ثم حاول مرة أخرى.</p>
+  <button type="button" onclick="location.reload()">Try again · Réessayer · إعادة المحاولة</button>
+</main>
+</body>
+</html>

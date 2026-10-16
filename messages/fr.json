@@ -491,7 +491,30 @@
       "field_contactFirstName": "Prénom du contact",
       "field_contactLastName": "Nom du contact"
     },
-    "importButton": "Importer"
+    "importButton": "Importer",
+    "columns": "Colonnes",
+    "showColumns": "Afficher les colonnes",
+    "preview": "Aperçu",
+    "previewOf": "Aperçu de {name}",
+    "previewContact": "Contact principal",
+    "previewNothingDue": "Rien à encaisser.",
+    "previewRecent": "Activité récente",
+    "previewNoActivity": "Aucune activité.",
+    "previewOpen": "Ouvrir la fiche",
+    "previewKind": {
+      "client_created": "Client créé",
+      "invoice_sent": "Facture envoyée",
+      "invoice_created": "Facture créée",
+      "payment_received": "Paiement reçu",
+      "call_logged": "Appel noté",
+      "email_logged": "E-mail noté",
+      "meeting_logged": "Rendez-vous noté",
+      "note_added": "Note ajoutée",
+      "follow_up_done": "Suivi effectué",
+      "invoice_reminder": "Relance envoyée",
+      "quotation_sent": "Devis envoyé",
+      "task_completed": "Tâche terminée"
+    }
   },
   "timeline": {
     "empty": "Aucune activité pour l’instant.",
@@ -1532,7 +1555,10 @@
     "code_help": "Le code à 6 chiffres de l'application, ou l'un de vos codes de secours.",
     "code_submit": "Vérifier",
     "code_back": "Retour",
-    "error_2fa_invalid": "Ce code ne fonctionne pas. Essayez le code le plus récent de l'application."
+    "error_2fa_invalid": "Ce code ne fonctionne pas. Essayez le code le plus récent de l'application.",
+    "consent": "En créant un compte, vous acceptez les <terms>Conditions d'utilisation</terms> et la <privacy>Politique de confidentialité</privacy>.",
+    "privacyLink": "Confidentialité",
+    "termsLink": "Conditions"
   },
   "email": {
     "greeting": "Bonjour {name},",
@@ -1642,5 +1668,11 @@
     "deleteBody": "Le fichier est supprimé pour tout le monde. Action irréversible.",
     "delete": "Supprimer",
     "deleted": "{name} supprimé"
+  },
+  "legal": {
+    "nav": "Pages légales",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "contactFallback": "le propriétaire de votre espace"
   }
 }

@@ -491,7 +491,30 @@
       "field_contactFirstName": "Contact first name",
       "field_contactLastName": "Contact last name"
     },
-    "importButton": "Import"
+    "importButton": "Import",
+    "columns": "Columns",
+    "showColumns": "Show columns",
+    "preview": "Quick look",
+    "previewOf": "Quick look at {name}",
+    "previewContact": "Main contact",
+    "previewNothingDue": "Nothing to collect.",
+    "previewRecent": "Recent activity",
+    "previewNoActivity": "No activity yet.",
+    "previewOpen": "Open full profile",
+    "previewKind": {
+      "client_created": "Client created",
+      "invoice_sent": "Invoice sent",
+      "invoice_created": "Invoice created",
+      "payment_received": "Payment received",
+      "call_logged": "Call logged",
+      "email_logged": "Email logged",
+      "meeting_logged": "Meeting logged",
+      "note_added": "Note added",
+      "follow_up_done": "Follow-up done",
+      "invoice_reminder": "Reminder sent",
+      "quotation_sent": "Quotation sent",
+      "task_completed": "Task completed"
+    }
   },
   "timeline": {
     "empty": "No activity yet.",
@@ -1532,7 +1555,10 @@
     "code_help": "The 6-digit code from the app, or one of your recovery codes.",
     "code_submit": "Verify",
     "code_back": "Back",
-    "error_2fa_invalid": "That code didn't work. Try the newest code from the app."
+    "error_2fa_invalid": "That code didn't work. Try the newest code from the app.",
+    "consent": "By creating an account you accept the <terms>Terms of use</terms> and the <privacy>Privacy policy</privacy>.",
+    "privacyLink": "Privacy",
+    "termsLink": "Terms"
   },
   "email": {
     "greeting": "Hello {name},",
@@ -1642,5 +1668,11 @@
     "deleteBody": "The file is removed for everyone. This cannot be undone.",
     "delete": "Delete",
     "deleted": "{name} deleted"
+  },
+  "legal": {
+    "nav": "Legal pages",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "contactFallback": "the owner of your workspace"
   }
 }

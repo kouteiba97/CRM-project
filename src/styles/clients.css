@@ -880,3 +880,103 @@
 .ax-drawer-foot .foot-start {
   margin-inline-end: auto;
 }
+
+/* Columns menu: hidden columns disappear from the header and every row. */
+.clients-table.hide-status .c-status,
+.clients-table.hide-projects .c-projects,
+.clients-table.hide-outstanding .c-money,
+.clients-table.hide-lastContact .c-last,
+.clients-table.hide-nextFollowUp .c-next,
+.clients-table.hide-owner .c-owner {
+  display: none;
+}
+
+.col-check {
+  display: inline-block;
+  width: 1em;
+  color: var(--accent-primary);
+}
+
+/* Quick preview (`?preview=`): a read-only side panel over the list. */
+.row-preview {
+  margin-inline-start: auto;
+  opacity: 0.6;
+}
+
+tr:hover .row-preview,
+.row-preview:focus-visible {
+  opacity: 1;
+}
+
+.preview-panel {
+  inset-inline: auto 0;
+  inset-block: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(420px, 100vw);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-inline-start: 1px solid var(--border-default);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.preview-panel::backdrop {
+  background: var(--overlay);
+}
+
+.preview-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  overflow: auto;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.preview-section p {
+  margin: 0;
+}
+
+.preview-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow-wrap: anywhere;
+}
+
+.preview-activity {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.preview-activity li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}

@@ -30,6 +30,20 @@ export default async function SignupPage({ params }: PageProps<"/[locale]/signup
     >
       {googleEnabled() && <GoogleButton />}
       <SignupForm />
+      <p className="legal-consent">
+        {t.rich("consent", {
+          terms: (c) => (
+            <Link href="/terms" className="login-link">
+              {c}
+            </Link>
+          ),
+          privacy: (c) => (
+            <Link href="/privacy" className="login-link">
+              {c}
+            </Link>
+          ),
+        })}
+      </p>
     </AuthCard>
   );
 }

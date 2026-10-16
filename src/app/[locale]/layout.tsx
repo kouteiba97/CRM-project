@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { ServiceWorker } from "@/components/shell/ServiceWorker";
 import { dirOf } from "@/lib/format";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
 import "@fontsource/plus-jakarta-sans/400.css";
@@ -35,8 +36,20 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
-  return { title: { default: t("appName"), template: `%s · ${t("appName")}` } };
+  return {
+    title: { default: t("appName"), template: `%s · ${t("appName")}` },
+    applicationName: t("appName"),
+    appleWebApp: { capable: true, title: t("appName"), statusBarStyle: "default" },
+    icons: { apple: "/icons/apple-touch-icon.png" },
+  };
 }
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#1f7a6d" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f2a30" },
+  ],
+};
 
 // "system" resolves before first paint so there is no flash of the wrong theme.
 const THEME_BOOT = `(function(){var d=document.documentElement;if(d.dataset.themePref==="system"){d.dataset.theme=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}})()`;
@@ -61,6 +74,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       </head>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <ServiceWorker />
       </body>
     </html>
   );

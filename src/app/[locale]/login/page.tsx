@@ -39,6 +39,15 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
       {notice && <AuthNotice tone={notice === "error_google" ? "error" : "info"}>{t(notice)}</AuthNotice>}
       {googleEnabled() && <GoogleButton callbackUrl={callbackUrl} />}
       <LoginForm callbackUrl={callbackUrl} />
+      <p className="legal-consent">
+        <Link href="/privacy" className="login-link">
+          {t("privacyLink")}
+        </Link>
+        {" · "}
+        <Link href="/terms" className="login-link">
+          {t("termsLink")}
+        </Link>
+      </p>
     </AuthCard>
   );
 }

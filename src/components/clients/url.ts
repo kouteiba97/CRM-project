@@ -19,3 +19,12 @@ export const FILTER_KEYS = ["q", "status", "tag", "owner", "overdue"] as const;
 
 /** Table density is remembered per user (DS › Layout › Density). */
 export const DENSITY_COOKIE = "clients_density";
+
+/** Columns a user may hide (Name always stays); remembered per user in a cookie. */
+export const OPTIONAL_COLUMNS = ["status", "projects", "outstanding", "lastContact", "nextFollowUp", "owner"] as const;
+export type OptionalColumn = (typeof OPTIONAL_COLUMNS)[number];
+export const COLUMNS_COOKIE = "clients_hidden_cols";
+
+export function parseHiddenColumns(raw: string | undefined): OptionalColumn[] {
+  return (raw ?? "").split(".").filter((c): c is OptionalColumn => (OPTIONAL_COLUMNS as readonly string[]).includes(c));
+}

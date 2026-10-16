@@ -15,7 +15,8 @@ import { getSession } from "@/lib/session";
 import { hueOf, initials } from "@/components/shell/initials";
 import { WidgetError } from "@/components/ui/WidgetError";
 import { ClientsList, type ClientRowView } from "./ClientsList";
-import { DENSITY_COOKIE } from "./url";
+import { ClientPreview } from "./ClientPreview";
+import { COLUMNS_COOKIE, DENSITY_COOKIE, parseHiddenColumns, patchQuery } from "./url";
 import { ClientFormDrawer } from "./ClientFormDrawer";
 
 type SP = Record<string, string | string[] | undefined>;
@@ -55,6 +56,14 @@ export async function ClientsListPage({ searchParams }: { searchParams: SP }) {
         <ClientsTableSection searchParams={searchParams} />
       </Suspense>
 
+      {typeof searchParams.preview === "string" && (
+        <ClientPreview
+          ws={session.workspaceId}
+          id={searchParams.preview}
+          closeHref={`/clients${patchQuery(new URLSearchParams(Object.entries(searchParams).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : []))), { preview: null }, { keepPage: true })}`}
+        />
+      )}
+
       {searchParams.new === "1" && (
         <ClientFormDrawer
           owners={meta?.owners ?? []}
@@ -76,8 +85,9 @@ async function ClientsTableSection({ searchParams }: { searchParams: SP }) {
   const f = formatter(locale);
   const filters = parseClientFilters(searchParams);
   const now = new Date();
-  const density =
-    (await cookies()).get(DENSITY_COOKIE)?.value === "compact" ? "compact" : "default";
+  const jar = await cookies();
+  const density = jar.get(DENSITY_COOKIE)?.value === "compact" ? "compact" : "default";
+  const hiddenColumns = parseHiddenColumns(jar.get(COLUMNS_COOKIE)?.value);
 
   let data: Awaited<ReturnType<typeof listClients>>;
   let meta: Awaited<ReturnType<typeof getClientListMeta>>;
@@ -142,6 +152,7 @@ async function ClientsTableSection({ searchParams }: { searchParams: SP }) {
       size={filters.size}
       sort={{ key: filters.sort, dir: filters.dir, explicit }}
       density={density}
+      hiddenColumns={hiddenColumns}
       statuses={CLIENT_STATUSES.map((s) => ({ value: s, label: ts(s) }))}
       tags={meta.tags.map((tag) => ({ value: tag, label: tag }))}
       owners={meta.owners.map((o) => ({ value: o.id, label: o.name }))}
