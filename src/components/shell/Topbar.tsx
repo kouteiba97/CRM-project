@@ -1,10 +1,23 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { Bell, BellRing, ChevronRight, Menu as MenuIcon, Moon, Plus, Receipt, Search, Settings, Sun } from "lucide-react";
+import { startTransition, useSyncExternalStore } from "react";
+import {
+  Bell,
+  BellRing,
+  ChevronRight,
+  LogOut,
+  Menu as MenuIcon,
+  Moon,
+  Plus,
+  Receipt,
+  Search,
+  Settings,
+  Sun,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { saveLocale, saveTheme } from "@/app/actions";
+import { logout } from "@/components/auth/actions";
 import type { SidebarCounts } from "@/db/queries/dashboard";
 import type { Locale } from "@/lib/format";
 import { Menu } from "./Menu";
@@ -208,6 +221,17 @@ export function Topbar({
               {{ en: "English", fr: "Français", ar: "العربية" }[l.code]}
             </Link>
           ))}
+          <div className="ax-menu-sep" role="separator" />
+          {/* Not a <form>: the menu unmounts on item click, which would drop the submit. */}
+          <button
+            type="button"
+            role="menuitem"
+            className="ax-menu-item"
+            onClick={() => startTransition(() => logout())}
+          >
+            <LogOut className="ax-icon" aria-hidden />
+            {t("logout")}
+          </button>
         </Menu>
       </div>
     </header>

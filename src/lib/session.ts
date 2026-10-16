@@ -1,6 +1,9 @@
 import "server-only";
 import { cache } from "react";
 import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { auth } from "@/auth";
 import { db } from "@/db/client";
 import { memberships, users, workspaces } from "@/db/schema";
 
@@ -12,19 +15,24 @@ export type Session = {
 };
 
 /**
- * Phase 1 dev session: resolves the seeded owner. Auth.js replaces this together with the
- * Login screen; every query is already scoped by `workspaceId`, so nothing else changes.
+ * The signed-in user and their workspace. The Data Access Layer check: every page, layout and
+ * Server Action goes through here, so a missing or stale session always ends at the login page
+ * (the proxy's cookie check is only the optimistic first pass).
  */
 export const getSession = cache(async (): Promise<Session> => {
-  const email = process.env.DEV_USER_EMAIL ?? "owner@apex.test";
-  const rows = await db
-    .select({ user: users, workspace: workspaces })
-    .from(users)
-    .innerJoin(memberships, eq(memberships.userId, users.id))
-    .innerJoin(workspaces, eq(workspaces.id, memberships.workspaceId))
-    .where(eq(users.email, email))
-    .limit(1);
-  const row = rows[0];
-  if (!row) throw new Error(`No user ${email}. Run \`npm run db:seed\`.`);
+  const authed = await auth();
+  const id = authed?.user?.id;
+  const row = id
+    ? (
+        await db
+          .select({ user: users, workspace: workspaces })
+          .from(users)
+          .innerJoin(memberships, eq(memberships.userId, users.id))
+          .innerJoin(workspaces, eq(workspaces.id, memberships.workspaceId))
+          .where(eq(users.id, id))
+          .limit(1)
+      )[0]
+    : undefined;
+  if (!row) redirect(`/${await getLocale()}/login`);
   return { userId: row.user.id, workspaceId: row.workspace.id, user: row.user, workspace: row.workspace };
 });

@@ -2,6 +2,8 @@
  * Dev seed. Dates are relative to today so the dashboard always has overdue, today and upcoming work.
  * Wipes every table first — refuses to run against production.
  */
+import bcrypt from "bcryptjs";
+import { DEV_CREDENTIALS } from "./dev-credentials";
 import { sql } from "drizzle-orm";
 import { db } from "./client";
 import * as s from "./schema";
@@ -41,7 +43,12 @@ async function main() {
     .returning();
   const [owner] = await db
     .insert(s.users)
-    .values({ email: "owner@apex.test", name: "Apex Tech", theme: "light" })
+    .values({
+      email: DEV_CREDENTIALS.email,
+      name: "Apex Tech",
+      theme: "light",
+      passwordHash: await bcrypt.hash(DEV_CREDENTIALS.password, 12),
+    })
     .returning();
   if (!ws || !owner) throw new Error("seed: workspace/user not created");
   await db.insert(s.memberships).values({ workspaceId: ws.id, userId: owner.id, role: "owner" });

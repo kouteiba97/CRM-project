@@ -8,3 +8,6 @@ next-env.d.ts
 test-results/
 playwright-report/
 /screenshots/
+
+# Playwright signed-in state
+tests/.auth/

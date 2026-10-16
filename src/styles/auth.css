@@ -1,0 +1,67 @@
+/*
+ * Login screen. Components come from ds/bundle.css (ax-*); every value is a token.
+ */
+
+.login-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6) var(--space-4);
+  background: var(--surface-sunken);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-end: var(--space-2);
+}
+
+.login-brand-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.login-lead {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.login-alert {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--status-danger-subtle);
+  color: var(--text-primary);
+}
+
+.login-alert .ax-icon {
+  flex: none;
+  color: var(--status-danger);
+}
+
+.login-submit {
+  width: 100%;
+  justify-content: center;
+}

@@ -66,11 +66,14 @@ test("[ toggles the sidebar and the choice persists", async ({ page }) => {
   await page.goto("/en");
   const sidebar = page.locator(".ax-sidebar");
   await expect(sidebar).toHaveJSProperty("offsetWidth", 232);
+  // The shortcut only works once the shell has hydrated.
+  await page.waitForLoadState("networkidle");
   await page.keyboard.press("[");
   await expect(sidebar).toHaveJSProperty("offsetWidth", 56);
   await page.waitForTimeout(500);
   await page.reload();
   await expect(sidebar).toHaveJSProperty("offsetWidth", 56);
+  await page.waitForLoadState("networkidle");
   await page.keyboard.press("[");
   await expect(sidebar).toHaveJSProperty("offsetWidth", 232);
   await page.waitForTimeout(500);

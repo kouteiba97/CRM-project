@@ -16,6 +16,7 @@ import "@/styles/tasks.css";
 import "@/styles/documents.css";
 import "@/styles/payments.css";
 import "@/styles/settings.css";
+import "@/styles/auth.css";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

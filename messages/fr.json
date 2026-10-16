@@ -52,7 +52,8 @@
     "expand": "Développer la barre latérale",
     "breadcrumbs": "Fil d’Ariane",
     "workspaceMenu": "Menu de l’espace de travail",
-    "newProject": "Nouveau projet"
+    "newProject": "Nouveau projet",
+    "logout": "Se déconnecter"
   },
   "nav": {
     "main": "Navigation principale",
@@ -1169,5 +1170,16 @@
       "invalid": "Vérifiez cette valeur",
       "ownerOnly": "Seul le propriétaire de l’espace peut modifier ces informations."
     }
+  },
+  "auth": {
+    "title": "Connexion",
+    "lead": "Connectez-vous à votre espace Apex CRM.",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion…",
+    "error_invalid": "E-mail ou mot de passe incorrect.",
+    "error_missing": "Saisissez votre e-mail et votre mot de passe.",
+    "error_too_many": "Trop de tentatives. Réessayez dans 15 minutes."
   }
 }

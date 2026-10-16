@@ -47,6 +47,8 @@ export const users = pgTable("users", {
   id: id(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
+  /** bcrypt hash; null means the user cannot sign in with a password. */
+  passwordHash: text("password_hash"),
   locale: e.locale("locale"),
   theme: e.themePref("theme").notNull().default("light"),
   sidebarCollapsed: boolean("sidebar_collapsed").notNull().default(false),
