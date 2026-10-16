@@ -30,7 +30,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 import type { Due } from "@/lib/due";
 import { Menu } from "@/components/shell/Menu";
 import { useToast } from "@/components/shell/Toasts";
-import { archiveClients, restoreClients } from "./actions";
+import { toCsv } from "@/lib/csv";
+import { archiveClients, recordClientsExport, restoreClients } from "./actions";
 import { DueLabel } from "@/components/ui/DueLabel";
 import { EmptyState } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -383,27 +384,20 @@ function BulkBar({ rows, onClear }: { rows: ClientRowView[]; onClear: () => void
   const [pending, start] = useTransition();
 
   const exportCsv = () => {
-    const cell = (v: string | null | undefined) => `"${(v ?? "").replace(/"/g, '""')}"`;
     const head = (
       ["name", "status", "projects", "outstanding", "lastContact", "nextFollowUp", "owner"] as const
     ).map((k) => t(`col.${k}`));
-    const lines = rows.map((r) =>
-      [
-        r.name,
-        ts(r.status as never),
-        r.openProjects,
-        r.outstandingTitle ?? "",
-        r.lastContact?.title ?? "",
-        r.nextFollowUp?.absolute ?? "",
-        r.owner?.name ?? "",
-      ]
-        .map(cell)
-        .join(","),
-    );
-    // BOM so spreadsheet apps read UTF-8 (Arabic, accents) correctly.
-    const blob = new Blob(["\uFEFF" + [head.map(cell).join(","), ...lines].join("\r\n")], {
-      type: "text/csv;charset=utf-8",
-    });
+    const lines = rows.map((r) => [
+      r.name,
+      ts(r.status as never),
+      r.openProjects,
+      r.outstandingTitle ?? "",
+      r.lastContact?.title ?? "",
+      r.nextFollowUp?.absolute ?? "",
+      r.owner?.name ?? "",
+    ]);
+    void recordClientsExport(rows.length);
+    const blob = new Blob([toCsv([head, ...lines])], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `clients-${new Date().toISOString().slice(0, 10)}.csv`;

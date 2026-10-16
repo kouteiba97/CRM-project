@@ -1,5 +1,6 @@
 "use server";
 
+import { audit } from "@/lib/audit";
 import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -240,7 +241,16 @@ async function setArchived(clientIds: string[], archived: boolean) {
 
 /** Archive (soft delete) one or many clients. No confirmation: the toast offers Undo (DS › Interaction). */
 export async function archiveClients(clientIds: string[]) {
-  return setArchived(clientIds, true);
+  const result = await setArchived(clientIds, true);
+  const { workspaceId, userId } = await getSession();
+  await audit("clients.archived", { workspaceId, actorId: userId, meta: { count: clientIds.length } });
+  return result;
+}
+
+/** The CSV itself is built in the browser; this only records that an export happened. */
+export async function recordClientsExport(count: number) {
+  const { workspaceId, userId } = await getSession();
+  await audit("clients.exported", { workspaceId, actorId: userId, meta: { count: Math.max(0, Math.trunc(count)) } });
 }
 
 export async function restoreClients(clientIds: string[]) {

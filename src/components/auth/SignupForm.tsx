@@ -29,6 +29,7 @@ export function SignupForm() {
   return (
     <form ref={form} action={action} className="login-form" noValidate>
       {state.failed && <AuthNotice tone="error">{t("error_generic")}</AuthNotice>}
+      {state.limited && <AuthNotice tone="error">{t("error_too_many_signups")}</AuthNotice>}
       <Field id="signup-name" label={t("name")} required error={err("name")} optionalLabel={t("optional")}>
         <input
           id="signup-name"

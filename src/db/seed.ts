@@ -26,7 +26,7 @@ const eur = (v: number) => Math.round(v * 100);
 async function main() {
   await db.execute(sql`truncate table
     activities, payments, line_items, invoices, quotations, follow_ups, tasks, milestones,
-    projects, leads, contacts, clients, document_sequences, memberships, users, workspaces
+    projects, leads, contacts, clients, document_sequences, memberships, users, workspaces, rate_limits
     restart identity cascade`);
 
   const [ws] = await db

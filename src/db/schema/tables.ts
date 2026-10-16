@@ -414,3 +414,31 @@ export const documentSequences = pgTable(
   },
   (t) => [uniqueIndex("document_sequences_key").on(t.workspaceId, t.kind, t.year)],
 );
+
+/**
+ * Fixed-window counters for abuse limits (sign-in failures, reset emails, sign-ups), shared by
+ * every server instance — an in-memory counter would reset per instance on serverless hosting.
+ */
+export const rateLimits = pgTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Security-relevant events (who did what, from where), shown to owners in Settings › Security. */
+export const auditEvents = pgTable(
+  "audit_events",
+  {
+    id: id(),
+    workspaceId: uuid("workspace_id").references(() => workspaces.id, { onDelete: "cascade" }),
+    actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    action: text("action").notNull(),
+    entityType: text("entity_type"),
+    entityId: text("entity_id"),
+    meta: jsonb("meta").$type<Record<string, string | number | boolean | null>>().notNull().default({}),
+    ip: text("ip"),
+    userAgent: text("user_agent"),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("audit_ws_time").on(t.workspaceId, t.at), index("audit_actor_time").on(t.actorId, t.at)],
+);

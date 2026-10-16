@@ -5,7 +5,9 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { AuthError } from "next-auth";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
-import { clearFailures, signIn, signOut } from "@/auth";
+import { auth, clearFailures, signIn, signOut } from "@/auth";
+import { audit } from "@/lib/audit";
+import { clientIp, hit, LIMITS } from "@/lib/rate-limit";
 import { db } from "@/db/client";
 import { authTokens, users } from "@/db/schema";
 import {
@@ -57,6 +59,8 @@ export async function googleSignIn(form: FormData) {
 }
 
 export async function logout() {
+  const session = await auth();
+  if (session?.user?.id) await audit("auth.sign_out", { actorId: session.user.id });
   await signOut({ redirectTo: `/${await locale()}/login` });
 }
 
@@ -66,6 +70,7 @@ export type SignupState = {
   errors: Partial<Record<SignupField, "required" | "invalid" | "too_short" | "taken">>;
   values: { name: string; email: string; company: string };
   failed?: boolean;
+  limited?: boolean;
 };
 
 const signupSchema = z.object({
@@ -90,6 +95,9 @@ export async function signup(_prev: SignupState, form: FormData): Promise<Signup
   const { name, email, company } = parsed.data;
   if (await findUserByEmail(email)) return { errors: { email: "taken" }, values };
 
+  if ((await hit(`signup-ip:${await clientIp()}`, LIMITS.signupsPerIp)) > LIMITS.signupsPerIp.max) {
+    return { errors: {}, values, limited: true };
+  }
   const lang = await locale();
   let userId: string;
   try {
@@ -107,6 +115,7 @@ export async function signup(_prev: SignupState, form: FormData): Promise<Signup
     console.error("signup failed", error);
     return { errors: {}, values, failed: true };
   }
+  await audit("account.created", { actorId: userId, meta: { method: "password" } });
   await sendVerification(userId, email, name, lang);
   await passwordSignIn(email, password, `/${lang}`);
   return { errors: {}, values };
@@ -145,7 +154,10 @@ export async function forgotPassword(_prev: ForgotState, form: FormData): Promis
   if (!parsed.success) return { sent: false, email: raw, error: "invalid" };
   const email = parsed.data;
   const user = await findUserByEmail(email);
-  if (user && (await recentTokens(user.id, "reset_password")) < RESET_LIMIT) {
+  // Over either limit, nothing is sent but the answer stays the same.
+  const ipOk =
+    (await hit(`reset-ip:${await clientIp()}`, LIMITS.resetEmailsPerIp)) <= LIMITS.resetEmailsPerIp.max;
+  if (user && ipOk && (await recentTokens(user.id, "reset_password")) < RESET_LIMIT) {
     const lang = await locale();
     try {
       const token = await issueToken(user.id, "reset_password");
@@ -184,7 +196,8 @@ export async function resetPassword(_prev: ResetState, form: FormData): Promise<
     .update(authTokens)
     .set({ usedAt: new Date() })
     .where(and(eq(authTokens.userId, userId), isNull(authTokens.usedAt)));
-  clearFailures(user.email);
+  await clearFailures(user.email);
+  await audit("auth.password_reset", { actorId: userId });
   await passwordSignIn(user.email, password, `/${await locale()}`);
   return { error: null };
 }

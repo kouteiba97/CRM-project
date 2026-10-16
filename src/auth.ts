@@ -8,7 +8,9 @@ import { z } from "zod";
 import { db } from "@/db/client";
 import { users } from "@/db/schema";
 import { createAccount, findUserByEmail } from "@/lib/accounts";
+import { audit } from "@/lib/audit";
 import { LOCALES, type Locale } from "@/lib/format";
+import { clearLimit, clientIp, hit, limited, LIMITS } from "@/lib/rate-limit";
 
 const credentials = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
@@ -18,29 +20,9 @@ const credentials = z.object({
 // Compared against when the email is unknown, so both paths take the same time.
 const DUMMY_HASH = "$2b$12$VXRRhLcbNzh0E39TfTdTK.gbdbkprcFSH2cZ9ZfxXxkmWkKKxyiYS";
 
-// Per-email failure counter: 5 wrong passwords lock that email for 15 minutes (per server).
-const WINDOW_MS = 15 * 60 * 1000;
-const MAX_FAILURES = 5;
-const failures = new Map<string, { count: number; first: number }>();
-
-function locked(email: string) {
-  const f = failures.get(email);
-  if (!f) return false;
-  if (Date.now() - f.first > WINDOW_MS) {
-    failures.delete(email);
-    return false;
-  }
-  return f.count >= MAX_FAILURES;
-}
-
-export function clearFailures(email: string) {
-  failures.delete(email.trim().toLowerCase());
-}
-
-function recordFailure(email: string) {
-  const f = failures.get(email);
-  if (!f || Date.now() - f.first > WINDOW_MS) failures.set(email, { count: 1, first: Date.now() });
-  else f.count += 1;
+/** Clears the failed-sign-in counter, e.g. after a password reset. */
+export async function clearFailures(email: string) {
+  await clearLimit(`login:${email.trim().toLowerCase()}`);
 }
 
 export class TooManyAttempts extends CredentialsSignin {
@@ -107,7 +89,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = credentials.safeParse(input);
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
-        if (locked(email)) throw new TooManyAttempts();
+        // Per IP (password spraying across accounts) and per email (guessing one account).
+        if ((await hit(`login-ip:${await clientIp()}`, LIMITS.loginAttemptsPerIp)) > LIMITS.loginAttemptsPerIp.max) {
+          throw new TooManyAttempts();
+        }
+        if (await limited(`login:${email}`, LIMITS.loginFailuresPerEmail)) throw new TooManyAttempts();
         const [user] = await db
           .select({
             id: users.id,
@@ -121,10 +107,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .limit(1);
         const ok = await bcrypt.compare(password, user?.hash ?? DUMMY_HASH);
         if (!user?.hash || !ok) {
-          recordFailure(email);
+          await hit(`login:${email}`, LIMITS.loginFailuresPerEmail);
+          await audit("auth.sign_in_failed", { actorId: user?.id, meta: { email } });
           return null;
         }
-        failures.delete(email);
+        await clearLimit(`login:${email}`);
+        await audit("auth.sign_in", { actorId: user.id, meta: { method: "password" } });
         return { id: user.id, email: user.email, name: user.name, sessionVersion: user.sessionVersion };
       },
     }),
@@ -140,6 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const u = await googleUser(profile.email.toLowerCase(), profile.name ?? profile.email.split("@")[0]!);
         token.sub = u.id;
         token.sv = u.sessionVersion;
+        await audit("auth.sign_in", { actorId: u.id, meta: { method: "google" } });
       } else if (user?.id) {
         token.sub = user.id;
         token.sv = user.sessionVersion ?? 0;

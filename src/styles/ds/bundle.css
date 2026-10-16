@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap");
+/* Fonts are self-hosted (@fontsource, imported in app/[locale]/layout.tsx): no request to Google, no visitor IP shared. */
 
 /* Apex CRM (Mint Glacier) — component layer. Light-first; teal acts, blue schedules, green settles. Every value references tokens.css; no raw colors.
    Motion is not a token family: these three durations and one easing are the whole motion system. */
